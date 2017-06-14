@@ -1,0 +1,14 @@
+2017-06-14 09:37:49.914 +02:00 [Information] You are using the in-memory version of the persisted grant store. This will store consent decisions, authorization codes, refresh and reference tokens in memory only. If you are using any of those features in production, you want to switch to a different store implementation.
+2017-06-14 09:37:49.981 +02:00 [Debug] Using built-in CookieAuthentication middleware with scheme: "idsrv"
+2017-06-14 09:37:49.987 +02:00 [Debug] Adding CookieAuthentication middleware for external authentication with scheme: "idsrv.external"
+2017-06-14 09:39:50.450 +02:00 [Information] You are using the in-memory version of the persisted grant store. This will store consent decisions, authorization codes, refresh and reference tokens in memory only. If you are using any of those features in production, you want to switch to a different store implementation.
+2017-06-14 09:39:50.508 +02:00 [Debug] Using built-in CookieAuthentication middleware with scheme: "idsrv"
+2017-06-14 09:39:50.514 +02:00 [Debug] Adding CookieAuthentication middleware for external authentication with scheme: "idsrv.external"
+2017-06-14 09:40:03.541 +02:00 [Debug] Augmenting SignInContext
+2017-06-14 09:40:49.081 +02:00 [Debug] Request path "/connect/endsession/callback" matched to endpoint type EndSession
+2017-06-14 09:40:49.085 +02:00 [Debug] Mapping found for endpoint: EndSession, creating handler: "IdentityServer4.Endpoints.EndSessionEndpoint"
+2017-06-14 09:40:49.088 +02:00 [Information] Invoking IdentityServer endpoint: "IdentityServer4.Endpoints.EndSessionEndpoint" for "/connect/endsession/callback"
+2017-06-14 09:40:49.095 +02:00 [Debug] Processing signout callback request
+2017-06-14 09:40:49.112 +02:00 [Debug] No client end session iframe URLs
+2017-06-14 09:40:49.115 +02:00 [Information] Successful signout callback. Client logout iframe urls: []
+2017-06-14 09:41:01.724 +02:00 [Debug] Augmenting SignInContext
