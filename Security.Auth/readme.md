@@ -38,6 +38,24 @@ services
 
 
 
+# Deployment Strategies
+
+### Create publish profiles for Visual Studio and MSBuild, to deploy ASP.NET Core apps
+`https://docs.microsoft.com/en-us/aspnet/core/publishing/web-publishing-vs`
+
+
+# Deployment Configuration
+
+### Setting environment variables for asp.net core when publishing on IIS
+`http://www.andrecarlucci.com/en/setting-environment-variables-for-asp-net-core-when-publishing-on-iis/`
+
+### How to set the hosting environment in ASP.NET Core
+`https://andrewlock.net/how-to-set-the-hosting-environment-in-asp-net-core/`
+
+### Setting Asp.Net Core Environment Variables via web.config in IIS
+`https://blog.dangl.me/archive/setting-asp-net-core-environment-variables-via-web-config-in-iis/`
+
+
 # Deployment Troubleshooting
 
 ### Web Deploy error codes
@@ -48,3 +66,4 @@ services
 
 ### Web publishing updates for app offline and usechecksum
 `https://blogs.msdn.microsoft.com/webdev/2013/10/29/web-publishing-updates-for-app-offline-and-usechecksum/`
+
