@@ -55,6 +55,9 @@ services
 ### Setting Asp.Net Core Environment Variables via web.config in IIS
 `https://blog.dangl.me/archive/setting-asp-net-core-environment-variables-via-web-config-in-iis/`
 
+### Make sure feature delegation is enabled for authentication
+`https://serverfault.com/questions/529819/changes-done-in-iis-manager-are-reflected-in-web-config-intead-of-applicationhos`
+
 
 # Deployment Troubleshooting
 
