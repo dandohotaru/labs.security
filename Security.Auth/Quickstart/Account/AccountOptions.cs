@@ -4,7 +4,7 @@
 
 using System;
 
-namespace IdentityServer4InMem
+namespace Labs.Security.Auth.Quickstart.Account
 {
     public class AccountOptions
     {

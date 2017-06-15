@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace IdentityServer4InMem
+namespace Labs.Security.Auth.Quickstart.Account
 {
     public class LoginViewModel : LoginInputModel
     {

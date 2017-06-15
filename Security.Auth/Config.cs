@@ -1,7 +1,7 @@
-﻿using IdentityServer4.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using IdentityServer4.Models;
 
-namespace IdentityServer4InMem
+namespace Labs.Security.Auth
 {
     public static class Config
     {

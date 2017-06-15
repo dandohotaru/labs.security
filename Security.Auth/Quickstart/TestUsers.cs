@@ -4,7 +4,7 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Test;
 
-namespace IdentityServer4InMem
+namespace Labs.Security.Auth.Quickstart
 {
     public class TestUsers
     {

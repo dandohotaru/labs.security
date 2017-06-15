@@ -1,13 +1,14 @@
 ﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer4;
+using Labs.Security.Auth.Quickstart;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using IdentityServer4;
 
-namespace IdentityServer4InMem
+namespace Labs.Security.Auth
 {
     public class Startup
     {
@@ -16,12 +17,18 @@ namespace IdentityServer4InMem
         public Startup(ILoggerFactory loggerFactory, IHostingEnvironment environment)
         {
             Environment = environment;
+            
+            var loggerPath = Path.Combine(@"c:\Data\logs\security", $"security.auth.{Environment.EnvironmentName.ToLower()}.logs.txt");
 
-            var serilog = new LoggerConfiguration()
+            var loggerOptions = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .Enrich.FromLogContext()
-                .WriteTo.File(@"identityserver4_log.txt")
-                .WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}");
+                .WriteTo.File(loggerPath);
+
+            if (Environment.IsDevelopment())
+            {
+                loggerOptions.WriteTo.LiterateConsole(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}");
+            }
 
             loggerFactory
                 .WithFilter(new FilterLoggerSettings
@@ -30,7 +37,7 @@ namespace IdentityServer4InMem
                     { "Microsoft", LogLevel.Warning },
                     { "System", LogLevel.Warning },
                 })
-                .AddSerilog(serilog.CreateLogger());
+                .AddSerilog(loggerOptions.CreateLogger());
         }
 
         public void ConfigureServices(IServiceCollection services)

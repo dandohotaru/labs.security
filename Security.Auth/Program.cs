@@ -1,8 +1,7 @@
 ﻿using System.IO;
-using IdentityServer4InMem;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Security.Auth
+namespace Labs.Security.Auth
 {
     public class Program
     {
