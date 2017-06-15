@@ -16,5 +16,10 @@
 
     <PackageReference Include="IdentityServer4" Version="1.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Certificates\IdentityServerAuth.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

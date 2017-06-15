@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,10 +35,16 @@ namespace IdentityServer4InMem
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // ToDo: Consider serving certificate from Trusted Store
+            var certificatePath = Path.Combine(Environment.ContentRootPath, "Certificates", "IdentityServerAuth.pfx");
+            var certificate = new X509Certificate2(certificatePath);
+
             services.AddMvc();
 
-            services.AddIdentityServer()
-                .AddDeveloperSigningCredential()
+            services
+                .AddIdentityServer()
+                //.AddDeveloperSigningCredential()
+                .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients())
@@ -48,6 +56,10 @@ namespace IdentityServer4InMem
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
             }
 
             app.UseIdentityServer();
