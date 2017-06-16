@@ -7,21 +7,81 @@ namespace Labs.Security.Auth
     {
         public static IEnumerable<IdentityResource> GetIdentityResources()
         {
-            return new IdentityResource[]
+            return new[]
             {
                 new IdentityResources.OpenId(),
-                new IdentityResources.Profile(),
+                //new IdentityResources.Profile(),
                 new IdentityResources.Email(),
                 new IdentityResources.Address(),
-                new IdentityResources.Phone()
+                new IdentityResources.Phone(),
+                new IdentityResource
+                {
+                    Name = "profile",
+                    Description = "The profile scope encapsulates information about the user details",
+                    Enabled = true,
+                    Emphasize = true,
+                    UserClaims = new List<string>
+                    {
+                        "userId",
+                        "userName",
+                        "userLabel",
+                        "personId",
+                        "firstName",
+                        "lastName",
+                        "fullName",
+                        "aliasName",
+                        "email",
+                        "role",
+                        "grant",
+                        "commission",
+                        "mandate",
+                    }
+                }
             };
         }
 
         public static IEnumerable<ApiResource> GetApis()
         {
-            return new ApiResource[]
+            return new[]
             {
-                new ApiResource("api1", "My API #1")
+                new ApiResource("api1", "My API #1"),
+                new ApiResource("api2", "My API #2"),
+                new ApiResource
+                {
+                    Name = "permissions",
+                    DisplayName = "Permissions",
+                    Description = "Encapsulates information about the permissions claims",
+                    Enabled = true,
+
+                    //Claims = new List<ScopeClaim>
+                    //{
+                    //    new ScopeClaim("userId"),
+                    //    new ScopeClaim("userName"),
+                    //    new ScopeClaim("userLabel"),
+                    //    new ScopeClaim("personId"),
+                    //    new ScopeClaim("firstName"),
+                    //    new ScopeClaim("lastName"),
+                    //    new ScopeClaim("fullName"),
+                    //    new ScopeClaim("aliasName"),
+                    //    new ScopeClaim("email"),
+                    //    new ScopeClaim("role"),
+                    //    new ScopeClaim("grant"),
+                    //    new ScopeClaim("commission"),
+                    //}
+                },
+                new ApiResource
+                {
+                    Name = "roles",
+                    DisplayName = "Roles",
+                    Description = "Encapsulates information about the roles claims",
+                    Enabled = true,
+
+                    //Claims = new List<ScopeClaim>
+                    //{
+                    //    new ScopeClaim("role"),
+                    //    new ScopeClaim("grant"),
+                    //}
+                }
             };
         }
 
@@ -34,11 +94,9 @@ namespace Labs.Security.Auth
                 {
                     ClientId = "client",
                     ClientName = "Client Credentials Client",
-
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    ClientSecrets = { new Secret("373f4671-0c18-48d6-9da3-962b1c81299a".Sha256()) },
-
-                    AllowedScopes = { "api1" }
+                    ClientSecrets = {new Secret("373f4671-0c18-48d6-9da3-962b1c81299a".Sha256())},
+                    AllowedScopes = {"api1"}
                 },
 
                 // MVC client using hybrid flow
@@ -46,16 +104,13 @@ namespace Labs.Security.Auth
                 {
                     ClientId = "mvc",
                     ClientName = "MVC Client",
-
                     AllowedGrantTypes = GrantTypes.Hybrid,
-                    ClientSecrets = { new Secret("373f4671-0c18-48d6-9da3-962b1c81299a".Sha256()) },
-
-                    RedirectUris = { "http://localhost:5001/signin-oidc" },
+                    ClientSecrets = {new Secret("373f4671-0c18-48d6-9da3-962b1c81299a".Sha256())},
+                    RedirectUris = {"http://localhost:5001/signin-oidc"},
                     LogoutUri = "http://localhost:5001/signout-oidc",
-                    PostLogoutRedirectUris = { "http://localhost:5001/signout-callback-oidc" },
-
+                    PostLogoutRedirectUris = {"http://localhost:5001/signout-callback-oidc"},
                     AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile", "api1" }
+                    AllowedScopes = {"openid", "profile", "api1"}
                 },
 
                 // SPA client using implicit flow
@@ -64,23 +119,34 @@ namespace Labs.Security.Auth
                     ClientId = "spa",
                     ClientName = "SPA Client",
                     ClientUri = "http://identityserver.io",
-
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
-                    
-                    RedirectUris =
+                    AllowedScopes = new[]
+                    {
+                        "openid",
+                        "profile",
+                        "api1"
+                    },
+                    RedirectUris = new[]
                     {
                         "http://localhost:5002/index.html",
                         "http://localhost:5002/callback.html",
                         "http://localhost:5002/silent.html",
                         "http://localhost:5002/popup.html",
+
+                        "http://localhost/samples.web/app/basic/index.html",
                     },
-
-                    PostLogoutRedirectUris = { "http://localhost:5002/index.html" },
-                    AllowedCorsOrigins = { "http://localhost:5002" },
-
-                    AllowedScopes = { "openid", "profile", "api1" }
-                }
+                    PostLogoutRedirectUris = new[]
+                    {
+                        "http://localhost:5002/index.html",
+                        "http://localhost/samples.web/app/basic/index.html",
+                    },
+                    AllowedCorsOrigins = new[]
+                    {
+                        "http://localhost:5002",
+                        "http://localhost",
+                    },
+                },
             };
         }
     }
