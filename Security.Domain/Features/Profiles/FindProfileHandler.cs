@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Infsys.Security.Auth.Core.Features.Profiles.Providers;
-using Infsys.Security.Auth.Core.Shared.Extensions;
-using Infsys.Security.Auth.Core.Shared.Messages;
+using Labs.Security.Domain.Features.Profiles.Providers;
+using Labs.Security.Domain.Shared.Extensions;
+using Labs.Security.Domain.Shared.Messages;
 
-namespace Infsys.Security.Auth.Core.Features.Profiles
+namespace Labs.Security.Domain.Features.Profiles
 {
     public class FindProfileHandler : IHandler<FindProfileRequest, FindProfileResponse>
     {

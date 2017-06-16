@@ -1,10 +1,19 @@
 ﻿using System.Threading.Tasks;
-using Infsys.Security.Auth.Core.Features.Profiles.Models;
+using Labs.Security.Domain.Features.Profiles.Models;
 
-namespace Infsys.Security.Auth.Core.Features.Profiles.Providers
+namespace Labs.Security.Domain.Features.Profiles.Providers
 {
     public interface IProfileProvider
     {
-        Task<ProfileModel[]> Search(IProfileCriterion criterion);
+        Task<ProfileModel[]> Search(AliasesCriterion criterion);
+    }
+
+    public interface IProfileCriterion
+    {
+    }
+
+    public class AliasesCriterion : IProfileCriterion
+    {
+        public string[] Names { get; set; }
     }
 }

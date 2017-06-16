@@ -1,4 +1,4 @@
-﻿namespace Infsys.Security.Auth.Core.Shared.Messages
+﻿namespace Labs.Security.Domain.Shared.Messages
 {
     public interface IMessage
     {

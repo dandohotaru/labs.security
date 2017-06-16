@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Infsys.Security.Auth.Core.Shared.Exceptions
+namespace Labs.Security.Domain.Shared.Exceptions
 {
     public class GuardException : Exception
     {

@@ -1,6 +1,6 @@
-﻿using Infsys.Security.Auth.Core.Shared.Messages;
+﻿using Labs.Security.Domain.Shared.Messages;
 
-namespace Infsys.Security.Auth.Core.Features.Profiles.Models
+namespace Labs.Security.Domain.Features.Profiles.Models
 {
     public class ProfileModel : IModel
     {

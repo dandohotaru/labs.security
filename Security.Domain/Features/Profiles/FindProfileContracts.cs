@@ -1,7 +1,7 @@
-﻿using Infsys.Security.Auth.Core.Features.Profiles.Models;
-using Infsys.Security.Auth.Core.Shared.Messages;
+﻿using Labs.Security.Domain.Features.Profiles.Models;
+using Labs.Security.Domain.Shared.Messages;
 
-namespace Infsys.Security.Auth.Core.Features.Profiles
+namespace Labs.Security.Domain.Features.Profiles
 {
     public class FindProfileRequest : IQuery<FindProfileResponse>
     {

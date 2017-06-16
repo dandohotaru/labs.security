@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Infsys.Security.Auth.Core.Shared.Extensions
+namespace Labs.Security.Domain.Shared.Extensions
 {
     public static class DictionaryExtensions
     {

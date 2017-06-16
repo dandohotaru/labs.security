@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Infsys.Security.Auth.Core.Shared.Messages
+namespace Labs.Security.Domain.Shared.Messages
 {
     public interface IHandler
     {

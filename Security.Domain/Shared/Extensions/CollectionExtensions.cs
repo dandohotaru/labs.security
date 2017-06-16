@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Infsys.Security.Auth.Core.Shared.Extensions
+namespace Labs.Security.Domain.Shared.Extensions
 {
     public static class CollectionExtensions
     {
