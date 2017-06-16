@@ -1,10 +1,7 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -15,8 +12,10 @@ namespace Labs.Security.Auth.Quickstart.Account
     public class AccountService
     {
         private readonly IClientStore _clientStore;
-        private readonly IIdentityServerInteractionService _interaction;
+
         private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IIdentityServerInteractionService _interaction;
 
         public AccountService(
             IIdentityServerInteractionService interaction,
@@ -33,13 +32,12 @@ namespace Labs.Security.Auth.Quickstart.Account
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null)
             {
-                // this is meant to short circuit the UI and only trigger the one external IdP
                 return new LoginViewModel
                 {
                     EnableLocalLogin = false,
                     ReturnUrl = returnUrl,
                     Username = context?.LoginHint,
-                    ExternalProviders = new ExternalProvider[] {new ExternalProvider { AuthenticationScheme = context.IdP } }
+                    ExternalProviders = new[] {new ExternalProvider {AuthenticationScheme = context.IdP}}
                 };
             }
 
@@ -102,7 +100,7 @@ namespace Labs.Security.Auth.Quickstart.Account
 
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId)
         {
-            var vm = new LogoutViewModel { LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt };
+            var vm = new LogoutViewModel {LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt};
 
             var user = await _httpContextAccessor.HttpContext.GetIdentityServerUserAsync();
             if (user == null || user.Identity.IsAuthenticated == false)
@@ -143,7 +141,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             if (user != null)
             {
                 var idp = user.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
-                if (idp != null && idp != IdentityServer4.IdentityServerConstants.LocalIdentityProvider)
+                if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider)
                 {
                     if (vm.LogoutId == null)
                     {

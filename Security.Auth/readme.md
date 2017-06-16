@@ -3,6 +3,10 @@
 ### Use ASP.NET Core 1.1 with .NET 4.6 (without Visual Studio)
 `https://jonhilton.net/2017/03/14/use-asp-net-core-1-1-with-net-4-without-visual-studio/`
 
+### How to change target framework with VS 2017 RC?
+`https://stackoverflow.com/questions/41433548/how-to-change-target-framework-with-vs-2017-rc`
+
+
 
 # Certificates Setup ([hint](https://stackoverflow.com/questions/42351274/identityserver4-hosting-in-iis))
 

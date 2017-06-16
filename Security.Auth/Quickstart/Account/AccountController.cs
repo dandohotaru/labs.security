@@ -1,14 +1,11 @@
-﻿// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -29,10 +26,13 @@ namespace Labs.Security.Auth.Quickstart.Account
     [SecurityHeaders]
     public class AccountController : Controller
     {
-        private readonly TestUserStore _users;
-        private readonly IIdentityServerInteractionService _interaction;
-        private readonly IEventService _events;
         private readonly AccountService _account;
+
+        private readonly IEventService _events;
+
+        private readonly IIdentityServerInteractionService _interaction;
+
+        private readonly TestUserStore _users;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
@@ -87,7 +87,8 @@ namespace Labs.Security.Auth.Quickstart.Account
                             IsPersistent = true,
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
                         };
-                    };
+                    }
+                    ;
 
                     // issue authentication cookie with subject ID and username
                     var user = _users.FindByUsername(model.Username);
@@ -119,7 +120,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> ExternalLogin(string provider, string returnUrl)
         {
-            returnUrl = Url.Action("ExternalLoginCallback", new { returnUrl = returnUrl });
+            returnUrl = Url.Action("ExternalLoginCallback", new {returnUrl = returnUrl});
 
             // windows authentication is modeled as external in the asp.net core authentication manager, so we need special handling
             if (AccountOptions.WindowsAuthenticationSchemes.Contains(provider))
@@ -143,22 +144,18 @@ namespace Labs.Security.Auth.Quickstart.Account
                         id.AddClaims(roles);
                     }
 
-                    await HttpContext.Authentication.SignInAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(id), props);
+                    await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(id), props);
                     return Redirect(returnUrl);
                 }
-                else
-                {
-                    // this triggers all of the windows auth schemes we're supporting so the browser can use what it supports
-                    return new ChallengeResult(AccountOptions.WindowsAuthenticationSchemes);
-                }
+                // this triggers all of the windows auth schemes we're supporting so the browser can use what it supports
+                return new ChallengeResult(AccountOptions.WindowsAuthenticationSchemes);
             }
-            else
             {
                 // start challenge and roundtrip the return URL
                 var props = new AuthenticationProperties
                 {
                     RedirectUri = returnUrl,
-                    Items = { { "scheme", provider } }
+                    Items = {{"scheme", provider}}
                 };
                 return new ChallengeResult(provider, props);
             }
@@ -171,7 +168,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl)
         {
             // read external identity from the temporary cookie
-            var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
+            var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
             var tempUser = info?.Principal;
             if (tempUser == null)
             {
@@ -223,7 +220,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             if (id_token != null)
             {
                 props = new AuthenticationProperties();
-                props.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = id_token } });
+                props.StoreTokens(new[] {new AuthenticationToken {Name = "id_token", Value = id_token}});
             }
 
             // issue authentication cookie for user
@@ -231,7 +228,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, provider, props, additionalClaims.ToArray());
 
             // delete temporary cookie used during external authentication
-            await HttpContext.Authentication.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
+            await HttpContext.Authentication.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
 
             // validate return URL and redirect back to authorization endpoint or a local page
             if (_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
@@ -269,12 +266,12 @@ namespace Labs.Security.Auth.Quickstart.Account
             var vm = await _account.BuildLoggedOutViewModelAsync(model.LogoutId);
             if (vm.TriggerExternalSignout)
             {
-                string url = Url.Action("Logout", new { logoutId = vm.LogoutId });
+                var url = Url.Action("Logout", new {logoutId = vm.LogoutId});
                 try
                 {
                     // hack: try/catch to handle social providers that throw
                     await HttpContext.Authentication.SignOutAsync(vm.ExternalAuthenticationScheme,
-                        new AuthenticationProperties { RedirectUri = url });
+                        new AuthenticationProperties {RedirectUri = url});
                 }
                 catch (NotSupportedException) // this is for the external providers that don't have signout
                 {

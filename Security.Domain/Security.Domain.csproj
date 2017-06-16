@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFramework>netcoreapp1.1</TargetFramework>-->
     <TargetFramework>net461</TargetFramework>
-    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+    <!--<RuntimeIdentifier>win7-x86</RuntimeIdentifier>-->
     <AssemblyName>Labs.Security.Domain</AssemblyName>
     <RootNamespace>Labs.Security.Domain</RootNamespace>
   </PropertyGroup>
