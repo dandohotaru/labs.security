@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
+using IdentityServer4.Configuration;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Labs.Security.Auth.Quickstart.Account
 {
@@ -120,36 +122,68 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> ExternalLogin(string provider, string returnUrl)
         {
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            
             returnUrl = Url.Action("ExternalLoginCallback", new {returnUrl = returnUrl});
 
             // windows authentication is modeled as external in the asp.net core authentication manager, so we need special handling
             if (AccountOptions.WindowsAuthenticationSchemes.Contains(provider))
             {
                 // but they don't support the redirect uri, so this URL is re-triggered when we call challenge
-                if (HttpContext.User is WindowsPrincipal wp)
+                if (HttpContext.User is WindowsPrincipal principal)
                 {
                     var props = new AuthenticationProperties();
                     props.Items.Add("scheme", AccountOptions.WindowsAuthenticationProviderName);
 
-                    var id = new ClaimsIdentity(provider);
-                    id.AddClaim(new Claim(JwtClaimTypes.Subject, HttpContext.User.Identity.Name));
-                    id.AddClaim(new Claim(JwtClaimTypes.Name, HttpContext.User.Identity.Name));
+                    var claims = new ClaimsIdentity(provider);
+                    claims.AddClaim(new Claim(JwtClaimTypes.Subject, HttpContext.User.Identity.Name));
+                    claims.AddClaim(new Claim(JwtClaimTypes.Name, HttpContext.User.Identity.Name));
 
                     // add the groups as claims -- be careful if the number of groups is too large
                     if (AccountOptions.IncludeWindowsGroups)
                     {
-                        var wi = wp.Identity as WindowsIdentity;
-                        var groups = wi.Groups.Translate(typeof(NTAccount));
-                        var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
-                        id.AddClaims(roles);
+                        var identity = principal.Identity as WindowsIdentity;
+                        if (identity != null && identity.Groups != null)
+                        {
+                            var groups = identity.Groups.Translate(typeof(NTAccount));
+                            if (groups != null)
+                            {
+                                var roles = groups.Select(p => new Claim(JwtClaimTypes.Role, p.Value));
+                                claims.AddClaims(roles);
+                            }
+                        }
                     }
 
-                    await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(id), props);
+                    // deal with context
+                    if (context.IdP != null)
+                    {
+                        // ToDo: [DanD]
+                        var user = new
+                        {
+                            SubjectId = HttpContext.User.Identity.Name,
+                            Username = HttpContext.User.Identity.Name,
+                        };
+
+                        claims.AddClaim(new Claim(JwtClaimTypes.IdentityProvider, context.IdP));
+                        var method = OidcConstants.AuthenticationMethods.WindowsIntegratedAuthentication;
+
+                        var scheme = HttpContext.Authentication.GetAuthenticationSchemes();
+                        var temp = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+
+                        await HttpContext.Authentication.SignInAsync(temp, user.SubjectId, user.Username, provider, new []{ method }, props, claims.Claims.ToArray());
+                    }
+                    else
+                    {
+                        await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(claims), props);
+                    }
+                    
                     return Redirect(returnUrl);
                 }
+
                 // this triggers all of the windows auth schemes we're supporting so the browser can use what it supports
                 return new ChallengeResult(AccountOptions.WindowsAuthenticationSchemes);
-            }
+            } 
+            else
             {
                 // start challenge and roundtrip the return URL
                 var props = new AuthenticationProperties
@@ -291,6 +325,14 @@ namespace Labs.Security.Auth.Quickstart.Account
             }
 
             return View("LoggedOut", vm);
+        }
+    }
+
+    public static class Extensions
+    {
+        public static async Task SignInAsync(this AuthenticationManager manager, string scheme, string sub, string name, string identityProvider, IEnumerable<string> authenticationMethods, AuthenticationProperties properties, params Claim[] claims)
+        {
+            await manager.SignInAsync(scheme, IdentityServerPrincipal.Create(sub, name, identityProvider, authenticationMethods, claims), properties);
         }
     }
 }

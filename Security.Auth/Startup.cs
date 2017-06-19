@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
+using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Labs.Security.Auth.Quickstart;
 using Labs.Security.Auth.Quickstart.Account;
@@ -23,7 +24,8 @@ namespace Labs.Security.Auth
             var loggerOptions = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .Enrich.FromLogContext()
-                .WriteTo.File(loggerPath);
+                .WriteTo.File(loggerPath)
+                .WriteTo.Seq("http://localhost:5341");
 
             if (Environment.IsDevelopment())
             {
@@ -44,22 +46,27 @@ namespace Labs.Security.Auth
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // ToDo: Consider serving certificate from Trusted Store
+            // ToDo: Consider serving certificate from a Trusted Store [DanD]
             var certificatePath = Path.Combine(Environment.ContentRootPath, "Certificates", "IdentityServerAuth.pfx");
             var certificate = new X509Certificate2(certificatePath);
 
             services.AddMvc();
-            services.AddTransient<IProfileService, ProfileService>();
+            
             services
                 .AddIdentityServer(options =>
                 {
-                    // ToDo: Review the available options [DanD]
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseErrorEvents = true;
+                    
                 })
                 .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
-                .AddTestingUsers(TestUsers.Users);
+                .AddProfileService<ProfileService>()
+                .AddAuthorizeInteractionResponseGenerator<AuthorizeInteractionResponseGenerator>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
