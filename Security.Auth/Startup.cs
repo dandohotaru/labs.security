@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
+using IdentityServer4.Services;
 using Labs.Security.Auth.Quickstart;
 using Labs.Security.Auth.Quickstart.Account;
 using Microsoft.AspNetCore.Builder;
@@ -48,7 +49,7 @@ namespace Labs.Security.Auth
             var certificate = new X509Certificate2(certificatePath);
 
             services.AddMvc();
-
+            services.AddTransient<IProfileService, ProfileService>();
             services
                 .AddIdentityServer(options =>
                 {
@@ -56,7 +57,7 @@ namespace Labs.Security.Auth
                 })
                 .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryApiResources(Config.GetApis())
+                .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
                 .AddTestingUsers(TestUsers.Users);
         }

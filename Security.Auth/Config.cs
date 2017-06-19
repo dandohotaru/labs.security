@@ -17,7 +17,8 @@ namespace Labs.Security.Auth
                 new IdentityResource
                 {
                     Name = "profile",
-                    Description = "The profile scope encapsulates information about the user details",
+                    DisplayName = "User profile",
+                    Description = "Your user profile information (first name, last name, etc.)",
                     Enabled = true,
                     Emphasize = true,
                     UserClaims = new List<string>
@@ -33,14 +34,12 @@ namespace Labs.Security.Auth
                         "email",
                         "role",
                         "grant",
-                        "commission",
-                        "mandate",
                     }
                 }
             };
         }
 
-        public static IEnumerable<ApiResource> GetApis()
+        public static IEnumerable<ApiResource> GetApiResources()
         {
             return new[]
             {
@@ -133,7 +132,6 @@ namespace Labs.Security.Auth
                         "http://localhost:5002/callback.html",
                         "http://localhost:5002/silent.html",
                         "http://localhost:5002/popup.html",
-
                         "http://localhost/samples.web/app/basic/index.html",
                     },
                     PostLogoutRedirectUris = new[]
