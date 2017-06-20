@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using IdentityModel;
+using Labs.Security.Domain.Shared.Compares;
 
-namespace Labs.Security.Auth.Quickstart.Account
+namespace Labs.Security.Domain.Features.Users
 {
     public class UserStore
     {
-        public UserStore(List<UserData> users)
+        public UserStore(List<UserData> users, IClaimMapper mapper)
         {
             Users = users;
+            Mapper = mapper;
         }
 
-        protected List<UserData> Users { get; }
+        protected List<UserData> Users { get; set; }
+
+        protected IClaimMapper Mapper { get; set; }
 
         public bool ValidateCredentials(string username, string password)
         {
@@ -51,8 +53,8 @@ namespace Labs.Security.Auth.Quickstart.Account
             {
                 if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")
                     source1.Add(new Claim("name", claim.Value));
-                else if (JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.ContainsKey(claim.Type))
-                    source1.Add(new Claim(JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap[claim.Type], claim.Value));
+                else if (Mapper.Contains(claim.Type))
+                    source1.Add(new Claim(Mapper.Fetch(claim.Type), claim.Value));
                 else
                     source1.Add(claim);
             }
@@ -71,7 +73,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                 else if (str2 != null)
                     source1.Add(new Claim("name", str2));
             }
-            var uniqueId = CryptoRandom.CreateUniqueId(length: 32);
+            var uniqueId = Guid.NewGuid().ToString();
             var claim3 = source1.FirstOrDefault(c => c.Type == "name");
             var str = (claim3 != null ? claim3.Value : null) ?? uniqueId;
             var testUser = new UserData
@@ -90,7 +92,10 @@ namespace Labs.Security.Auth.Quickstart.Account
 
     public class UserData
     {
-        public ICollection<Claim> Claims { get; set; } = (ICollection<Claim>) new HashSet<Claim>(new ClaimComparer());
+        public UserData()
+        {
+            Claims = new HashSet<Claim>(new ClaimsComparer());
+        }
 
         public string SubjectId { get; set; }
 
@@ -101,5 +106,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         public string ProviderName { get; set; }
 
         public string ProviderSubjectId { get; set; }
+
+        public ICollection<Claim> Claims { get; set; }
     }
 }

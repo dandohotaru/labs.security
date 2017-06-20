@@ -12,6 +12,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Labs.Security.Auth.Quickstart.Shared.Attributes;
+using Labs.Security.Domain.Features.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
@@ -44,8 +45,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             IEventService events,
             UserStore users = null)
         {
-            // if the TestUserStore is not in DI, then we'll just use the global users collection
-            _users = users ?? new UserStore(TestUsers.Users);
+            _users = users;
             _interaction = interaction;
             _events = events;
             _account = new AccountService(interaction, httpContextAccessor, clientStore);

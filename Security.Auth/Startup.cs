@@ -6,8 +6,10 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Labs.Security.Auth.Quickstart;
 using Labs.Security.Auth.Quickstart.Account;
+using Labs.Security.Auth.Quickstart.Shared.Mappers;
 using Labs.Security.Domain.Adfs.Profiles;
 using Labs.Security.Domain.Features.Profiles.Providers;
+using Labs.Security.Domain.Features.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,7 +58,7 @@ namespace Labs.Security.Auth
             services.AddMvc();
 
             services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
-            services.AddSingleton(new UserStore(new List<UserData>()));
+            services.AddSingleton(new UserStore(new List<UserData>(), new JwtClaimMapper()));
 
             services
                 .AddIdentityServer(options =>
