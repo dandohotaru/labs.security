@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace Labs.Security.Domain.Shared.Extensions
 {
     public static class ClaimsExtensions
     {
-        public static void Add(this ICollection<Claim> instance, string key, string value)
+        public static void Attach(this ICollection<Claim> instance, string key, string value)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value), "The claim value cannot be null");
+            var claim = value == null
+                ? new Claim(key, "unknown")
+                : new Claim(key, value);
 
-            instance.Add(new Claim(key, value));
+            instance.Add(claim);
         }
 
-        public static void Add(this ICollection<Claim> instance, string key, int? value)
+        public static void Attach(this ICollection<Claim> instance, string key, int? value)
         {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value), "The claim value cannot be null");
+            var claim = value == null
+                ? new Claim(key, "unknown")
+                : new Claim(key, value.ToString());
 
-            instance.Add(new Claim(key, value.ToString()));
+            instance.Add(claim);
         }
     }
 }

@@ -2,15 +2,15 @@
 using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4;
-using IdentityServer4.Test;
+using Labs.Security.Auth.Quickstart.Account;
 
 namespace Labs.Security.Auth.Quickstart
 {
     public class TestUsers
     {
-        public static List<TestUser> Users = new List<TestUser>
+        public static List<UserData> Users = new List<UserData>
         {
-            new TestUser
+            new UserData
             {
                 SubjectId = "88421113", Username = "bob", Password = "bob",
                 Claims =
@@ -25,7 +25,7 @@ namespace Labs.Security.Auth.Quickstart
                     new Claim("location", "somewhere"),
                 }
             },
-            new TestUser
+            new UserData
             {
                 SubjectId = "818727", Username = "alice", Password = "alice",
                 Claims =

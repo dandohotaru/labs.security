@@ -1,8 +1,6 @@
-﻿using Labs.Security.Domain.Shared.Messages;
-
-namespace Labs.Security.Domain.Features.Profiles.Models
+﻿namespace Labs.Security.Domain.Features.Profiles.Providers
 {
-    public class ProfileModel : IModel
+    public class IdentityData
     {
         public string AliasName { get; set; }
 

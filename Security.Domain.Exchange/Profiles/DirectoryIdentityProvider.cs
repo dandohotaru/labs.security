@@ -4,23 +4,22 @@ using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Security.Auth.Exchange.Shared.Extensions;
+using Labs.Security.Domain.Adfs.Shared.Extensions;
 using Labs.Security.Domain.Features.Profiles.Providers;
-using Labs.Security.Domain.Features.Profiles.Models;
 using Labs.Security.Domain.Shared.Exceptions;
 using Labs.Security.Domain.Shared.Extensions;
 
-namespace Security.Auth.Exchange.Profiles
+namespace Labs.Security.Domain.Adfs.Profiles
 {
-    public class ExchangeProfileProvider : IProfileProvider
+    public class DirectoryIdentityProvider : IIdentityProvider
     {
-        public Task<ProfileModel[]> Search(AliasesCriterion criterion)
+        public Task<IdentityData[]> Search(AliasesCriterion criterion)
         {
             if (criterion == null)
                 throw new GuardException("The criterion cannot be null");
-            if (criterion.Names == null)
+            if (criterion.Aliases == null)
                 throw new GuardException("The criterion names cannot be null");
-            if (criterion.Names.Empty())
+            if (criterion.Aliases.Empty())
                 throw new GuardException("The criterion names cannot be empty");
 
             // ToDo: Encapsulate setup at construction level [DanD]
@@ -46,7 +45,7 @@ namespace Security.Auth.Exchange.Profiles
             }
 
             // Search
-            var names = from name in criterion.Names
+            var names = from name in criterion.Aliases
                         where !string.IsNullOrEmpty(name)
                         select $"(name={name})";
             var filter = $"(|{names.Collate()})";
@@ -83,7 +82,7 @@ namespace Security.Auth.Exchange.Profiles
 
             // Projection
             var profiles = from result in results.OfType<SearchResult>()
-                           select new ProfileModel
+                           select new IdentityData
                            {
                                AliasName = result.Parse<string>("cn"),
                                FirstName = result.Parse<string>("givenname"),

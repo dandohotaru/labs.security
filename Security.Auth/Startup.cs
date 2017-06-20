@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Labs.Security.Auth.Quickstart;
 using Labs.Security.Auth.Quickstart.Account;
+using Labs.Security.Domain.Adfs.Profiles;
+using Labs.Security.Domain.Features.Profiles.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +54,10 @@ namespace Labs.Security.Auth
             var certificate = new X509Certificate2(certificatePath);
 
             services.AddMvc();
-            
+
+            services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
+            services.AddSingleton(new UserStore(new List<UserData>()));
+
             services
                 .AddIdentityServer(options =>
                 {

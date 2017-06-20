@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
 
-namespace Security.Auth.Exchange.Shared.Extensions
+namespace Labs.Security.Domain.Adfs.Shared.Extensions
 {
     public static class SearchExtensions
     {

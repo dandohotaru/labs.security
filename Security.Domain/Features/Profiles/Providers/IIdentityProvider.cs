@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Labs.Security.Domain.Features.Profiles.Models;
 
 namespace Labs.Security.Domain.Features.Profiles.Providers
 {
-    public interface IProfileProvider
+    public interface IIdentityProvider
     {
-        Task<ProfileModel[]> Search(AliasesCriterion criterion);
+        Task<IdentityData[]> Search(AliasesCriterion criterion);
     }
 
     public interface IProfileCriterion
@@ -14,6 +13,6 @@ namespace Labs.Security.Domain.Features.Profiles.Providers
 
     public class AliasesCriterion : IProfileCriterion
     {
-        public string[] Names { get; set; }
+        public string[] Aliases { get; set; }
     }
 }

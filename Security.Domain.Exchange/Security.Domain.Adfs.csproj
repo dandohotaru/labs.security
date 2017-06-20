@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <!--<RuntimeIdentifier>win7-x86</RuntimeIdentifier>-->
-    <AssemblyName>Labs.Security.Domain.Exchange</AssemblyName>
-    <RootNamespace>Labs.Security.Domain.Exchange</RootNamespace>
+    <AssemblyName>Labs.Security.Domain.Adfs</AssemblyName>
+    <RootNamespace>Labs.Security.Domain.Adfs</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

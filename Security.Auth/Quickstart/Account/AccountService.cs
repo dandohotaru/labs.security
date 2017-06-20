@@ -11,25 +11,22 @@ namespace Labs.Security.Auth.Quickstart.Account
 {
     public class AccountService
     {
-        private readonly IClientStore _clientStore;
-
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        private readonly IIdentityServerInteractionService _interaction;
-
-        public AccountService(
-            IIdentityServerInteractionService interaction,
-            IHttpContextAccessor httpContextAccessor,
-            IClientStore clientStore)
+        public AccountService(IIdentityServerInteractionService interaction, IHttpContextAccessor httpContextAccessor, IClientStore clientStore)
         {
-            _interaction = interaction;
-            _httpContextAccessor = httpContextAccessor;
-            _clientStore = clientStore;
+            Interaction = interaction;
+            ContextAccessor = httpContextAccessor;
+            ClientStore = clientStore;
         }
+
+        protected IClientStore ClientStore { get; }
+
+        protected IHttpContextAccessor ContextAccessor { get; }
+
+        protected IIdentityServerInteractionService Interaction { get; }
 
         public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl)
         {
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null)
             {
                 return new LoginViewModel
@@ -41,7 +38,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                 };
             }
 
-            var schemes = _httpContextAccessor.HttpContext.Authentication.GetAuthenticationSchemes();
+            var schemes = ContextAccessor.HttpContext.Authentication.GetAuthenticationSchemes();
 
             var providers = schemes
                 .Where(x => x.DisplayName != null && !AccountOptions.WindowsAuthenticationSchemes.Contains(x.AuthenticationScheme))
@@ -68,7 +65,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             var allowLocal = true;
             if (context?.ClientId != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                var client = await ClientStore.FindEnabledClientByIdAsync(context.ClientId);
                 if (client != null)
                 {
                     allowLocal = client.EnableLocalLogin;
@@ -102,7 +99,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         {
             var vm = new LogoutViewModel {LogoutId = logoutId, ShowLogoutPrompt = AccountOptions.ShowLogoutPrompt};
 
-            var user = await _httpContextAccessor.HttpContext.GetIdentityServerUserAsync();
+            var user = await ContextAccessor.HttpContext.GetIdentityServerUserAsync();
             if (user == null || user.Identity.IsAuthenticated == false)
             {
                 // if the user is not authenticated, then just show logged out page
@@ -110,7 +107,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                 return vm;
             }
 
-            var context = await _interaction.GetLogoutContextAsync(logoutId);
+            var context = await Interaction.GetLogoutContextAsync(logoutId);
             if (context?.ShowSignoutPrompt == false)
             {
                 // it's safe to automatically sign-out
@@ -126,7 +123,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId)
         {
             // get context information (client name, post logout redirect URI and iframe for federated signout)
-            var logout = await _interaction.GetLogoutContextAsync(logoutId);
+            var logout = await Interaction.GetLogoutContextAsync(logoutId);
 
             var vm = new LoggedOutViewModel
             {
@@ -137,7 +134,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                 LogoutId = logoutId
             };
 
-            var user = await _httpContextAccessor.HttpContext.GetIdentityServerUserAsync();
+            var user = await ContextAccessor.HttpContext.GetIdentityServerUserAsync();
             if (user != null)
             {
                 var idp = user.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
@@ -148,7 +145,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                         // if there's no current logout context, we need to create one
                         // this captures necessary info from the current logged in user
                         // before we signout and redirect away to the external IdP for signout
-                        vm.LogoutId = await _interaction.CreateLogoutContextAsync();
+                        vm.LogoutId = await Interaction.CreateLogoutContextAsync();
                     }
 
                     vm.ExternalAuthenticationScheme = idp;

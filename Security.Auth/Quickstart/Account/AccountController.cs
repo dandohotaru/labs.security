@@ -11,12 +11,13 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Test;
+using Labs.Security.Auth.Quickstart.Shared.Attributes;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Labs.Security.Domain.Shared.Extensions;
 
 namespace Labs.Security.Auth.Quickstart.Account
 {
@@ -34,17 +35,17 @@ namespace Labs.Security.Auth.Quickstart.Account
 
         private readonly IIdentityServerInteractionService _interaction;
 
-        private readonly TestUserStore _users;
+        private readonly UserStore _users;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IHttpContextAccessor httpContextAccessor,
             IEventService events,
-            TestUserStore users = null)
+            UserStore users = null)
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
-            _users = users ?? new TestUserStore(TestUsers.Users);
+            _users = users ?? new UserStore(TestUsers.Users);
             _interaction = interaction;
             _events = events;
             _account = new AccountService(interaction, httpContextAccessor, clientStore);
@@ -90,7 +91,6 @@ namespace Labs.Security.Auth.Quickstart.Account
                             ExpiresUtc = DateTimeOffset.UtcNow.Add(AccountOptions.RememberMeLoginDuration)
                         };
                     }
-                    ;
 
                     // issue authentication cookie with subject ID and username
                     var user = _users.FindByUsername(model.Username);
@@ -132,11 +132,13 @@ namespace Labs.Security.Auth.Quickstart.Account
                 // but they don't support the redirect uri, so this URL is re-triggered when we call challenge
                 if (HttpContext.User is WindowsPrincipal principal)
                 {
+                    var nameWithoutDomain = principal.Identity.Alias();
+
                     var props = new AuthenticationProperties();
                     props.Items.Add("scheme", AccountOptions.WindowsAuthenticationProviderName);
 
                     var claims = new ClaimsIdentity(provider);
-                    claims.AddClaim(new Claim(JwtClaimTypes.Subject, HttpContext.User.Identity.Name));
+                    claims.AddClaim(new Claim(JwtClaimTypes.Subject, nameWithoutDomain));
                     claims.AddClaim(new Claim(JwtClaimTypes.Name, HttpContext.User.Identity.Name));
 
                     // add the groups as claims -- be careful if the number of groups is too large
@@ -155,24 +157,24 @@ namespace Labs.Security.Auth.Quickstart.Account
                     }
 
                     // deal with context
-                    if (context.IdP != null)
-                    {
-                        // ToDo: [DanD]
-                        var user = new
-                        {
-                            SubjectId = HttpContext.User.Identity.Name,
-                            Username = HttpContext.User.Identity.Name,
-                        };
+                    //if (context.IdP != null)
+                    //{
+                    //    // ToDo: [DanD]
+                    //    var user = new
+                    //    {
+                    //        SubjectId = HttpContext.User.Identity.Name,
+                    //        Username = HttpContext.User.Identity.Name,
+                    //    };
 
-                        claims.AddClaim(new Claim(JwtClaimTypes.IdentityProvider, context.IdP));
-                        var method = OidcConstants.AuthenticationMethods.WindowsIntegratedAuthentication;
+                    //    claims.AddClaim(new Claim(JwtClaimTypes.IdentityProvider, context.IdP));
+                    //    var method = OidcConstants.AuthenticationMethods.WindowsIntegratedAuthentication;
 
-                        var scheme = HttpContext.Authentication.GetAuthenticationSchemes();
-                        var temp = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    //    var scheme = HttpContext.Authentication.GetAuthenticationSchemes();
+                    //    var temp = IdentityServerConstants.ExternalCookieAuthenticationScheme;
 
-                        await HttpContext.Authentication.SignInAsync(temp, user.SubjectId, user.Username, provider, new []{ method }, props, claims.Claims.ToArray());
-                    }
-                    else
+                    //    await HttpContext.Authentication.SignInAsync(temp, user.SubjectId, user.Username, provider, new []{ method }, props, claims.Claims.ToArray());
+                    //}
+                    //else
                     {
                         await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(claims), props);
                     }
