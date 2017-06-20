@@ -58,7 +58,7 @@ namespace Labs.Security.Auth
             services.AddMvc();
 
             services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
-            services.AddSingleton(new UserStore(new List<UserData>(), new JwtClaimMapper()));
+            services.AddSingleton(new UserStore(UserDummies.Users, new JwtClaimMapper()));
 
             services
                 .AddIdentityServer(options =>
@@ -73,8 +73,7 @@ namespace Labs.Security.Auth
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
-                .AddProfileService<ProfileService>()
-                .AddAuthorizeInteractionResponseGenerator<AuthorizeInteractionResponseGenerator>();
+                .AddProfileService<CustomProfileService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

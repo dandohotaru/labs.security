@@ -95,7 +95,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                     // issue authentication cookie with subject ID and username
                     var user = _users.FindByUsername(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
-                    await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, props);
+                    await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, props, user.Claims.ToArray());
 
                     // make sure the returnUrl is still valid, and if yes - redirect back to authorize endpoint or a local page
                     if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
@@ -233,12 +233,12 @@ namespace Labs.Security.Auth.Quickstart.Account
             var userId = userIdClaim.Value;
 
             // check if the external user is already provisioned
-            var user = _users.FindByExternalProvider(provider, userId);
+            var user = _users.FindByProvider(provider, userId);
             if (user == null)
             {
                 // this sample simply auto-provisions new external user
                 // another common approach is to start a registrations workflow first
-                user = _users.AutoProvisionUser(provider, userId, claims);
+                user = _users.ProvisionUser(provider, userId, claims);
             }
 
             var additionalClaims = new List<Claim>();

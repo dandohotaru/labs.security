@@ -2,51 +2,62 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Labs.Security.Domain.Shared.Compares;
 
 namespace Labs.Security.Domain.Features.Users
 {
     public class UserStore
     {
-        public UserStore(List<UserData> users, IClaimMapper mapper)
+        public UserStore(ICollection<UserData> users, IClaimMapper mapper)
         {
-            Users = users;
+            Cache = users;
             Mapper = mapper;
         }
 
-        protected List<UserData> Users { get; set; }
+        protected ICollection<UserData> Cache { get; set; }
 
         protected IClaimMapper Mapper { get; set; }
 
         public bool ValidateCredentials(string username, string password)
         {
-            var byUsername = FindByUsername(username);
-            if (byUsername != null)
-                return byUsername.Password.Equals(password);
-            return false;
+            var query = from user in Cache
+                        where user.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+                        select user;
+            var found = query.FirstOrDefault();
+            if (found == null)
+                return false;
+
+            return found.Password.Equals(password);
         }
 
         public UserData FindBySubjectId(string subjectId)
         {
-            return Users.FirstOrDefault(x => x.SubjectId == subjectId);
+            var query = from user in Cache
+                        where user.SubjectId == subjectId
+                        select user;
+
+            return query.FirstOrDefault();
         }
 
         public UserData FindByUsername(string username)
         {
-            return Users.FirstOrDefault(x => x.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            var query = from user in Cache
+                        where user.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+                        select user;
+
+            return query.FirstOrDefault();
         }
 
-        public UserData FindByExternalProvider(string provider, string userId)
+        public UserData FindByProvider(string provider, string userId)
         {
-            return Users.FirstOrDefault(x =>
-            {
-                if (x.ProviderName == provider)
-                    return x.ProviderSubjectId == userId;
-                return false;
-            });
+            var query = from user in Cache
+                        where user.ProviderName == provider
+                            && user.ProviderSubjectId == userId
+                        select user;
+
+            return query.FirstOrDefault();
         }
 
-        public UserData AutoProvisionUser(string provider, string userId, List<Claim> claims)
+        public UserData ProvisionUser(string provider, string userId, List<Claim> claims)
         {
             var source1 = new List<Claim>();
             foreach (var claim in claims)
@@ -58,6 +69,7 @@ namespace Labs.Security.Domain.Features.Users
                 else
                     source1.Add(claim);
             }
+
             var source2 = source1;
             Func<Claim, bool> predicate = x => x.Type == "name";
             if (!source2.Any(predicate))
@@ -73,6 +85,7 @@ namespace Labs.Security.Domain.Features.Users
                 else if (str2 != null)
                     source1.Add(new Claim("name", str2));
             }
+
             var uniqueId = Guid.NewGuid().ToString();
             var claim3 = source1.FirstOrDefault(c => c.Type == "name");
             var str = (claim3 != null ? claim3.Value : null) ?? uniqueId;
@@ -85,28 +98,9 @@ namespace Labs.Security.Domain.Features.Users
                 ProviderSubjectId = userId,
                 Claims = source1
             };
-            Users.Add(testUser);
+
+            Cache.Add(testUser);
             return testUser;
         }
-    }
-
-    public class UserData
-    {
-        public UserData()
-        {
-            Claims = new HashSet<Claim>(new ClaimsComparer());
-        }
-
-        public string SubjectId { get; set; }
-
-        public string Username { get; set; }
-
-        public string Password { get; set; }
-
-        public string ProviderName { get; set; }
-
-        public string ProviderSubjectId { get; set; }
-
-        public ICollection<Claim> Claims { get; set; }
     }
 }

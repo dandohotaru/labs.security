@@ -3,18 +3,24 @@ using System.Security.Claims;
 
 namespace Labs.Security.Domain.Features.Users
 {
-    public class TestUsers
+    public class UserDummies
     {
-        public static List<UserData> Users = new List<UserData>
+        public static ICollection<UserData> Users = new List<UserData>
         {
             new UserData
             {
-                SubjectId = "88421113", Username = "bob", Password = "bob",
+                //SubjectId = "88421113",
+                SubjectId = "bob",
+                Username = "bob",
+                Password = "bob",
                 Claims =
                 {
-                    new Claim("name", "Bob Smith"),
-                    new Claim("given_name", "Bob"),
-                    new Claim("family_name", "Smith"),
+                    new Claim("userName", "bob"),
+                    new Claim("labelName", "Bob Smith"),
+                    new Claim("aliasName", "bob"),
+                    new Claim("firstName", "Bob"),
+                    new Claim("lastName", "Smith"),
+                    new Claim("fullName", "Bob Smith"),
                     new Claim("email", "BobSmith@email.com"),
                     new Claim("email_verified", "true", ClaimValueTypes.Boolean),
                     new Claim("website", "http://bob.com"),
@@ -24,12 +30,18 @@ namespace Labs.Security.Domain.Features.Users
             },
             new UserData
             {
-                SubjectId = "818727", Username = "alice", Password = "alice",
+                //SubjectId = "818727",
+                SubjectId = "alice",
+                Username = "alice",
+                Password = "alice",
                 Claims =
                 {
-                    new Claim("name", "Alice Smith"),
-                    new Claim("given_name", "Alice"),
-                    new Claim("family_name", "Smith"),
+                    new Claim("userName", "alice"),
+                    new Claim("labelName", "Alice Smith"),
+                    new Claim("aliasName", "alice"),
+                    new Claim("firstName", "Alice"),
+                    new Claim("lastName", "Smith"),
+                    new Claim("fullName", "Alice Smith"),
                     new Claim("email", "AliceSmith@email.com"),
                     new Claim("email_verified", "true", ClaimValueTypes.Boolean),
                     new Claim("website", "http://alice.com"),
