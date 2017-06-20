@@ -6,19 +6,17 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
-using IdentityServer4.Configuration;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Labs.Security.Auth.Quickstart.Shared.Attributes;
 using Labs.Security.Domain.Features.Users;
+using Labs.Security.Domain.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Labs.Security.Domain.Shared.Extensions;
 
 namespace Labs.Security.Auth.Quickstart.Account
 {
@@ -30,26 +28,26 @@ namespace Labs.Security.Auth.Quickstart.Account
     [SecurityHeaders]
     public class AccountController : Controller
     {
-        private readonly AccountService _account;
-
-        private readonly IEventService _events;
-
-        private readonly IIdentityServerInteractionService _interaction;
-
-        private readonly UserStore _users;
-
         public AccountController(
-            IIdentityServerInteractionService interaction,
+            IIdentityServerInteractionService interactionService,
             IClientStore clientStore,
             IHttpContextAccessor httpContextAccessor,
-            IEventService events,
-            UserStore users = null)
+            IEventService eventsService,
+            UserStore usersStore)
         {
-            _users = users;
-            _interaction = interaction;
-            _events = events;
-            _account = new AccountService(interaction, httpContextAccessor, clientStore);
+            UsersStore = usersStore;
+            InteractionService = interactionService;
+            EventsService = eventsService;
+            AccountService = new AccountService(interactionService, httpContextAccessor, clientStore);
         }
+
+        private IIdentityServerInteractionService InteractionService { get; }
+
+        private IEventService EventsService { get; }
+
+        private AccountService AccountService { get; }
+
+        private UserStore UsersStore { get; }
 
         /// <summary>
         /// Show login page
@@ -57,7 +55,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
-            var vm = await _account.BuildLoginViewModelAsync(returnUrl);
+            var vm = await AccountService.BuildLoginViewModelAsync(returnUrl);
 
             if (vm.IsExternalLoginOnly)
             {
@@ -78,7 +76,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             if (ModelState.IsValid)
             {
                 // validate username/password against in-memory store
-                if (_users.ValidateCredentials(model.Username, model.Password))
+                if (UsersStore.ValidateCredentials(model.Username, model.Password))
                 {
                     AuthenticationProperties props = null;
                     // only set explicit expiration here if persistent. 
@@ -93,12 +91,12 @@ namespace Labs.Security.Auth.Quickstart.Account
                     }
 
                     // issue authentication cookie with subject ID and username
-                    var user = _users.FindByUsername(model.Username);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
+                    var user = UsersStore.FindByUsername(model.Username);
+                    await EventsService.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
                     await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, props);
 
                     // make sure the returnUrl is still valid, and if yes - redirect back to authorize endpoint or a local page
-                    if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
+                    if (InteractionService.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
                     {
                         return Redirect(model.ReturnUrl);
                     }
@@ -106,24 +104,24 @@ namespace Labs.Security.Auth.Quickstart.Account
                     return Redirect("~/");
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
+                await EventsService.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials"));
 
                 ModelState.AddModelError("", AccountOptions.InvalidCredentialsErrorMessage);
             }
 
             // something went wrong, show form with error
-            var vm = await _account.BuildLoginViewModelAsync(model);
+            var vm = await AccountService.BuildLoginViewModelAsync(model);
             return View(vm);
         }
 
         /// <summary>
-        /// initiate roundtrip to external authentication provider
+        /// Initiate roundtrip to external authentication provider
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ExternalLogin(string provider, string returnUrl)
         {
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-            
+            var context = await InteractionService.GetAuthorizationContextAsync(returnUrl);
+
             returnUrl = Url.Action("ExternalLoginCallback", new {returnUrl = returnUrl});
 
             // windows authentication is modeled as external in the asp.net core authentication manager, so we need special handling
@@ -178,13 +176,13 @@ namespace Labs.Security.Auth.Quickstart.Account
                     {
                         await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(claims), props);
                     }
-                    
+
                     return Redirect(returnUrl);
                 }
 
                 // this triggers all of the windows auth schemes we're supporting so the browser can use what it supports
                 return new ChallengeResult(AccountOptions.WindowsAuthenticationSchemes);
-            } 
+            }
             else
             {
                 // start challenge and roundtrip the return URL
@@ -203,6 +201,8 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl)
         {
+            var context = await InteractionService.GetAuthorizationContextAsync(returnUrl);
+
             // read external identity from the temporary cookie
             var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
             var tempUser = info?.Principal;
@@ -229,16 +229,17 @@ namespace Labs.Security.Auth.Quickstart.Account
             // remove the user id claim from the claims collection and move to the userId property
             // also set the name of the external authentication provider
             claims.Remove(userIdClaim);
-            var provider = info.Properties.Items["scheme"];
+            //var provider = info.Properties.Items["scheme"];
+            var provider = context.IdP;
             var userId = userIdClaim.Value;
 
             // check if the external user is already provisioned
-            var user = _users.FindByProvider(provider, userId);
+            var user = UsersStore.FindByProvider(provider, userId);
             if (user == null)
             {
                 // this sample simply auto-provisions new external user
                 // another common approach is to start a registrations workflow first
-                user = _users.ProvisionUser(provider, userId, claims);
+                user = UsersStore.ProvisionUser(provider, userId, claims);
             }
 
             var additionalClaims = new List<Claim>();
@@ -260,14 +261,14 @@ namespace Labs.Security.Auth.Quickstart.Account
             }
 
             // issue authentication cookie for user
-            await _events.RaiseAsync(new UserLoginSuccessEvent(provider, userId, user.SubjectId, user.Username));
+            await EventsService.RaiseAsync(new UserLoginSuccessEvent(provider, userId, user.SubjectId, user.Username));
             await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, provider, props, additionalClaims.ToArray());
 
             // delete temporary cookie used during external authentication
             await HttpContext.Authentication.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
 
             // validate return URL and redirect back to authorization endpoint or a local page
-            if (_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
+            if (InteractionService.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
             }
@@ -281,7 +282,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> Logout(string logoutId)
         {
-            var vm = await _account.BuildLogoutViewModelAsync(logoutId);
+            var vm = await AccountService.BuildLogoutViewModelAsync(logoutId);
 
             if (vm.ShowLogoutPrompt == false)
             {
@@ -299,7 +300,7 @@ namespace Labs.Security.Auth.Quickstart.Account
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout(LogoutInputModel model)
         {
-            var vm = await _account.BuildLoggedOutViewModelAsync(model.LogoutId);
+            var vm = await AccountService.BuildLoggedOutViewModelAsync(model.LogoutId);
             if (vm.TriggerExternalSignout)
             {
                 var url = Url.Action("Logout", new {logoutId = vm.LogoutId});
@@ -323,7 +324,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             var user = await HttpContext.GetIdentityServerUserAsync();
             if (user != null)
             {
-                await _events.RaiseAsync(new UserLogoutSuccessEvent(user.GetSubjectId(), user.GetName()));
+                await EventsService.RaiseAsync(new UserLogoutSuccessEvent(user.GetSubjectId(), user.GetName()));
             }
 
             return View("LoggedOut", vm);
