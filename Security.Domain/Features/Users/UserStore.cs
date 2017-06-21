@@ -12,9 +12,6 @@ namespace Labs.Security.Domain.Features.Users
     {
         public UserStore(IClaimMapper mapper, IIdentityProvider provider)
         {
-            //ICollection<UserData> users,
-            //Cache = users;
-
             Cache = new List<UserData>();
             Mapper = mapper;
             Provider = provider;
@@ -68,7 +65,6 @@ namespace Labs.Security.Domain.Features.Users
 
         public async Task<UserData> ProvisionUser(string provider, string userId, string connectId, List<Claim> claims)
         {
-            // ToDo: consider using async await [DanD]
             var criterion = new AliasesCriterion
             {
                 Aliases = new[]
@@ -85,15 +81,12 @@ namespace Labs.Security.Domain.Features.Users
                 var identity = profiles.SingleOrDefault(p => p.AliasName.Equals(userId, StringComparison.InvariantCultureIgnoreCase));
                 if (identity == null)
                 {
-                    // ToDo: Consider invalidating authentication when alias name is not found [DanD]
-                    // ToDo: Use AuthenticateResult with error message in theses case [DanD]
-
                     userClaims.Add("userName", userId);
-                    userClaims.Add("userLabel", userId);
-                    userClaims.Add("aliasName", userId);
-                    userClaims.Add("firstName", userId);
-                    userClaims.Add("lastName", userId);
-                    userClaims.Add("fullName", userId);
+                    userClaims.Add("userLabel", "anonymous");
+                    userClaims.Add("aliasName", connectId);
+                    userClaims.Add("firstName", "anonymous");
+                    userClaims.Add("lastName", "anonymous");
+                    userClaims.Add("fullName", "anonymous");
                 }
                 else
                 {
@@ -125,6 +118,7 @@ namespace Labs.Security.Domain.Features.Users
             }
             else
             {
+                // ToDo: Refactor claims sources logic [DanD]
                 var source1 = new List<Claim>();
                 foreach (var claim in claims)
                 {

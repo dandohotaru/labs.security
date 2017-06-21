@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
-using IdentityServer4.ResponseHandling;
-using IdentityServer4.Services;
-using Labs.Security.Auth.Quickstart;
 using Labs.Security.Auth.Quickstart.Account;
 using Labs.Security.Auth.Quickstart.Shared.Mappers;
 using Labs.Security.Domain.Adfs.Profiles;
@@ -55,14 +51,20 @@ namespace Labs.Security.Auth
             var certificatePath = Path.Combine(Environment.ContentRootPath, "Certificates", "IdentityServerAuth.pfx");
             var certificate = new X509Certificate2(certificatePath);
 
+            // Add mvc
             services.AddMvc();
 
-            // ToDo: Consider refactoring dependency injeciton [DanD]
+            // Add extras
             services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
             services.AddTransient<IClaimMapper, JwtClaimMapper>();
-            services.AddSingleton<IUserStore, UserStore>();
-            //services.AddSingleton(new UserStore(UserDummies.Users, new JwtClaimMapper(), new DirectoryIdentityProvider()));
+            services.AddSingleton<IUserStore, UserStore>(context =>
+            {
+                var mapper = context.GetService<IClaimMapper>();
+                var provider = context.GetService<IIdentityProvider>();
+                return new LocalStore(mapper, provider);
+            });
 
+            // Add idsrv
             services
                 .AddIdentityServer(options =>
                 {
@@ -75,7 +77,7 @@ namespace Labs.Security.Auth
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApiResources())
                 .AddInMemoryClients(Config.GetClients())
-                .AddProfileService<CustomProfileService>();
+                .AddProfileService<ProfileService>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
