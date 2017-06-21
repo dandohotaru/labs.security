@@ -68,7 +68,6 @@ namespace Labs.Security.Auth
                     options.Events.RaiseSuccessEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseErrorEvents = true;
-                    
                 })
                 .AddSigningCredential(certificate)
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())

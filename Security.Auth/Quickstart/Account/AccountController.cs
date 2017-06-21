@@ -133,7 +133,8 @@ namespace Labs.Security.Auth.Quickstart.Account
                     var nameWithoutDomain = principal.Identity.Alias();
 
                     var props = new AuthenticationProperties();
-                    props.Items.Add("scheme", AccountOptions.WindowsAuthenticationProviderName);
+                    props.Items.Add("scheme", context == null ? AccountOptions.WindowsAuthenticationProviderName : context.IdP);
+                    props.Items.Add("connectId", context == null ? nameWithoutDomain : context.LoginHint);
 
                     var claims = new ClaimsIdentity(provider);
                     claims.AddClaim(new Claim(JwtClaimTypes.Subject, nameWithoutDomain));
@@ -153,29 +154,8 @@ namespace Labs.Security.Auth.Quickstart.Account
                             }
                         }
                     }
-
-                    // deal with context
-                    //if (context.IdP != null)
-                    //{
-                    //    // ToDo: [DanD]
-                    //    var user = new
-                    //    {
-                    //        SubjectId = HttpContext.User.Identity.Name,
-                    //        Username = HttpContext.User.Identity.Name,
-                    //    };
-
-                    //    claims.AddClaim(new Claim(JwtClaimTypes.IdentityProvider, context.IdP));
-                    //    var method = OidcConstants.AuthenticationMethods.WindowsIntegratedAuthentication;
-
-                    //    var scheme = HttpContext.Authentication.GetAuthenticationSchemes();
-                    //    var temp = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-
-                    //    await HttpContext.Authentication.SignInAsync(temp, user.SubjectId, user.Username, provider, new []{ method }, props, claims.Claims.ToArray());
-                    //}
-                    //else
-                    {
-                        await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(claims), props);
-                    }
+                    
+                    await HttpContext.Authentication.SignInAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme, new ClaimsPrincipal(claims), props);
 
                     return Redirect(returnUrl);
                 }
@@ -201,8 +181,6 @@ namespace Labs.Security.Auth.Quickstart.Account
         [HttpGet]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl)
         {
-            var context = await InteractionService.GetAuthorizationContextAsync(returnUrl);
-
             // read external identity from the temporary cookie
             var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
             var tempUser = info?.Principal;
@@ -226,13 +204,12 @@ namespace Labs.Security.Auth.Quickstart.Account
                 throw new Exception("Unknown userid");
             }
 
-            var connectId = context.LoginHint;
+            var connectId = info.Properties.Items["connectId"];
 
             // remove the user id claim from the claims collection and move to the userId property
             // also set the name of the external authentication provider
             claims.Remove(userIdClaim);
-            //var provider = info.Properties.Items["scheme"];
-            var provider = context.IdP;
+            var provider = info.Properties.Items["scheme"];
             var userId = userIdClaim.Value;
 
             // check if the external user is already provisioned

@@ -118,6 +118,7 @@ namespace Labs.Security.Auth
                     ClientId = "spa",
                     ClientName = "SPA Client",
                     ClientUri = "http://identityserver.io",
+                    RequireConsent = false,
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
                     AllowedScopes = new[]
