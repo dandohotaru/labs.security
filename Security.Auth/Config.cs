@@ -10,7 +10,6 @@ namespace Labs.Security.Auth
             return new[]
             {
                 new IdentityResources.OpenId(),
-                //new IdentityResources.Profile(),
                 new IdentityResources.Email(),
                 new IdentityResources.Address(),
                 new IdentityResources.Phone(),
@@ -35,6 +34,41 @@ namespace Labs.Security.Auth
                         "role",
                         "grant",
                     }
+                },
+                new IdentityResource
+                {
+                    Name = "permissions",
+                    DisplayName = "Permissions",
+                    Description = "Encapsulates information about the permissions claims",
+                    Enabled = true,
+                    Emphasize = true,
+                    UserClaims = new List<string>
+                    {
+                        "userId",
+                        "userName",
+                        "userLabel",
+                        "personId",
+                        "firstName",
+                        "lastName",
+                        "fullName",
+                        "aliasName",
+                        "email",
+                        "role",
+                        "grant",
+                    }
+                },
+                new IdentityResource
+                {
+                    Name = "roles",
+                    DisplayName = "Roles",
+                    Description = "Encapsulates information about the roles claims",
+                    Enabled = true,
+                    Emphasize = true,
+                    UserClaims = new List<string>
+                    {
+                        "role",
+                        "grant",
+                    }
                 }
             };
         }
@@ -43,43 +77,30 @@ namespace Labs.Security.Auth
         {
             return new[]
             {
-                new ApiResource("api1", "My API #1"),
-                new ApiResource("api2", "My API #2"),
+                new ApiResource("api1", "Api #1"),
+                new ApiResource("api2", "Api #2"),
                 new ApiResource
                 {
-                    Name = "permissions",
-                    DisplayName = "Permissions",
-                    Description = "Encapsulates information about the permissions claims",
+                    Name = "api3",
+                    DisplayName = "Api #3",
+                    Description = "Api #3",
                     Enabled = true,
-
-                    //Claims = new List<ScopeClaim>
-                    //{
-                    //    new ScopeClaim("userId"),
-                    //    new ScopeClaim("userName"),
-                    //    new ScopeClaim("userLabel"),
-                    //    new ScopeClaim("personId"),
-                    //    new ScopeClaim("firstName"),
-                    //    new ScopeClaim("lastName"),
-                    //    new ScopeClaim("fullName"),
-                    //    new ScopeClaim("aliasName"),
-                    //    new ScopeClaim("email"),
-                    //    new ScopeClaim("role"),
-                    //    new ScopeClaim("grant"),
-                    //    new ScopeClaim("commission"),
-                    //}
+                    UserClaims = new List<string>
+                    {
+                        "role",
+                    }
                 },
                 new ApiResource
                 {
-                    Name = "roles",
-                    DisplayName = "Roles",
-                    Description = "Encapsulates information about the roles claims",
+                    Name = "api4",
+                    DisplayName = "Api #4",
+                    Description = "Api #4",
                     Enabled = true,
-
-                    //Claims = new List<ScopeClaim>
-                    //{
-                    //    new ScopeClaim("role"),
-                    //    new ScopeClaim("grant"),
-                    //}
+                    UserClaims = new List<string>
+                    {
+                        "role",
+                        "grant",
+                    }
                 }
             };
         }
@@ -115,17 +136,22 @@ namespace Labs.Security.Auth
                 // SPA client using implicit flow
                 new Client
                 {
-                    ClientId = "spa",
-                    ClientName = "SPA Client",
-                    ClientUri = "http://identityserver.io",
+                    ClientId = "samplesweb",
+                    ClientName = "Spa Client",
+                    ClientUri = "TBD",
+                    Enabled = true,
                     RequireConsent = false,
+                    IdentityTokenLifetime = 360,
+                    AccessTokenLifetime = 3600,
+                    AllowRememberConsent = false,
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
                     AllowedScopes = new[]
                     {
                         "openid",
                         "profile",
-                        "api1"
+                        "permissions",
+                        "roles",
                     },
                     RedirectUris = new[]
                     {
