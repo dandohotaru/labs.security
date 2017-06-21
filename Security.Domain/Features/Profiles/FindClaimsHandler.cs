@@ -35,12 +35,12 @@ namespace Labs.Security.Domain.Features.Profiles
             var build = new Func<IdentityData, Claim[]>(p =>
             {
                 var claims = new List<Claim>();
-                claims.Attach("userName", p.AliasName);
-                claims.Attach("userLabel", p.FullName);
-                claims.Attach("aliasName", p.AliasName);
-                claims.Attach("firstName", p.FirstName);
-                claims.Attach("lastName", p.LastName);
-                claims.Attach("fullName", p.FullName);
+                claims.Add("userName", p.AliasName);
+                claims.Add("userLabel", p.FullName);
+                claims.Add("aliasName", p.AliasName);
+                claims.Add("firstName", p.FirstName);
+                claims.Add("lastName", p.LastName);
+                claims.Add("fullName", p.FullName);
 
                 return claims.ToArray();
             });

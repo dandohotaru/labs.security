@@ -51,46 +51,69 @@ namespace Labs.Security.Domain.Features.Users
             return query.FirstOrDefault();
         }
 
-        public UserData FindByProvider(string provider, string userId)
+        public UserData FindByProvider(string provider, string subjectId, string connectId)
         {
             var query = from user in Cache
                         where user.ProviderName == provider
-                            && user.ProviderSubjectId == userId
+                            && user.ProviderSubjectId == subjectId
+                            && user.ConnectId == connectId
                         select user;
 
             return query.FirstOrDefault();
         }
 
-        public UserData ProvisionUser(string provider, string userId, List<Claim> claims)
+        public UserData ProvisionUser(string provider, string userId, string connectId, List<Claim> claims)
         {
             // ToDo: consider using async await [DanD]
-            var criterion = new AliasesCriterion { Aliases = new []{ userId} };
+            var criterion = new AliasesCriterion
+            {
+                Aliases = new []
+                {
+                    userId,
+                    connectId,
+                }
+            };
             var profiles = Provider.Search(criterion).Result;
             if (profiles.Any())
             {
-                var build = new Func<IdentityData, Claim[]>(p =>
-                {
-                    var temp = new List<Claim>();
-                    temp.Attach("userName", p.AliasName);
-                    temp.Attach("userLabel", p.FullName);
-                    temp.Attach("aliasName", p.AliasName);
-                    temp.Attach("firstName", p.FirstName);
-                    temp.Attach("lastName", p.LastName);
-                    temp.Attach("fullName", p.FullName);
+                var userClaims = new List<Claim>();
 
-                    return temp.ToArray();
-                });
-                var results = from profile in profiles
-                              from claim in build(profile)
-                              select claim;
+                var identity = profiles.SingleOrDefault(p => p.AliasName.Equals(userId, StringComparison.InvariantCultureIgnoreCase));
+                if (identity == null)
+                {
+                    // ToDo: Consider invalidating authentication when alias name is not found [DanD]
+                    // ToDo: Use AuthenticateResult with error message in theses case [DanD]
+
+                    userClaims.Add("userName", userId);
+                    userClaims.Add("userLabel", userId);
+                    userClaims.Add("aliasName", userId);
+                    userClaims.Add("firstName", userId);
+                    userClaims.Add("lastName", userId);
+                    userClaims.Add("fullName", userId);
+                }
+                else
+                {
+                    var principal = profiles.SingleOrDefault(p => p.AliasName.Equals(connectId, StringComparison.InvariantCultureIgnoreCase));
+                    if (principal == null)
+                        principal = identity;
+
+                    userClaims.Add("userName", identity.AliasName);
+                    userClaims.Add("userLabel", identity.FullName);
+
+                    userClaims.Add("aliasName", principal.AliasName);
+                    userClaims.Add("firstName", principal.FirstName);
+                    userClaims.Add("lastName", principal.LastName);
+                    userClaims.Add("fullName", principal.FullName);
+                }
 
                 var user = new UserData
                 {
                     SubjectId = userId,
+                    ConnectId = connectId,
                     Username = userId,
                     ProviderName = provider,
                     ProviderSubjectId = userId,
-                    Claims = results.ToArray()
+                    Claims = userClaims
                 };
 
                 Cache.Add(user);

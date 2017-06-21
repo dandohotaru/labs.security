@@ -226,6 +226,8 @@ namespace Labs.Security.Auth.Quickstart.Account
                 throw new Exception("Unknown userid");
             }
 
+            var connectId = context.LoginHint;
+
             // remove the user id claim from the claims collection and move to the userId property
             // also set the name of the external authentication provider
             claims.Remove(userIdClaim);
@@ -234,12 +236,12 @@ namespace Labs.Security.Auth.Quickstart.Account
             var userId = userIdClaim.Value;
 
             // check if the external user is already provisioned
-            var user = UsersStore.FindByProvider(provider, userId);
+            var user = UsersStore.FindByProvider(provider, userId, connectId);
             if (user == null)
             {
                 // this sample simply auto-provisions new external user
                 // another common approach is to start a registrations workflow first
-                user = UsersStore.ProvisionUser(provider, userId, claims);
+                user = UsersStore.ProvisionUser(provider, userId, connectId, claims);
             }
 
             var additionalClaims = new List<Claim>();

@@ -13,6 +13,8 @@ namespace Labs.Security.Domain.Features.Users
 
         public string SubjectId { get; set; }
 
+        public string ConnectId { get; set; }
+
         public string Username { get; set; }
 
         public string Password { get; set; }
