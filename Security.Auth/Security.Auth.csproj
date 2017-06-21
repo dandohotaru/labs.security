@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <!--<RuntimeIdentifier>win7-x86</RuntimeIdentifier>-->
+    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
     <AssemblyName>Labs.Security.Auth</AssemblyName>
     <RootNamespace>Labs.Security.Auth</RootNamespace>
   </PropertyGroup>
