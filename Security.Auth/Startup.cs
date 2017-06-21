@@ -59,7 +59,9 @@ namespace Labs.Security.Auth
 
             // ToDo: Consider refactoring dependency injeciton [DanD]
             services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
-            services.AddSingleton(new UserStore(UserDummies.Users, new JwtClaimMapper(), new DirectoryIdentityProvider()));
+            services.AddTransient<IClaimMapper, JwtClaimMapper>();
+            services.AddSingleton<IUserStore, UserStore>();
+            //services.AddSingleton(new UserStore(UserDummies.Users, new JwtClaimMapper(), new DirectoryIdentityProvider()));
 
             services
                 .AddIdentityServer(options =>

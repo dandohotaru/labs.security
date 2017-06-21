@@ -33,7 +33,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             IClientStore clientStore,
             IHttpContextAccessor httpContextAccessor,
             IEventService eventsService,
-            UserStore usersStore)
+            IUserStore usersStore)
         {
             UsersStore = usersStore;
             InteractionService = interactionService;
@@ -47,7 +47,7 @@ namespace Labs.Security.Auth.Quickstart.Account
 
         private AccountService AccountService { get; }
 
-        private UserStore UsersStore { get; }
+        private IUserStore UsersStore { get; }
 
         /// <summary>
         /// Show login page
@@ -76,7 +76,7 @@ namespace Labs.Security.Auth.Quickstart.Account
             if (ModelState.IsValid)
             {
                 // validate username/password against in-memory store
-                if (UsersStore.ValidateCredentials(model.Username, model.Password))
+                if (await UsersStore.ValidateCredentials(model.Username, model.Password))
                 {
                     AuthenticationProperties props = null;
                     // only set explicit expiration here if persistent. 
@@ -91,7 +91,7 @@ namespace Labs.Security.Auth.Quickstart.Account
                     }
 
                     // issue authentication cookie with subject ID and username
-                    var user = UsersStore.FindByUsername(model.Username);
+                    var user = await UsersStore.FindByUsername(model.Username);
                     await EventsService.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
                     await HttpContext.Authentication.SignInAsync(user.SubjectId, user.Username, props);
 
@@ -213,12 +213,12 @@ namespace Labs.Security.Auth.Quickstart.Account
             var userId = userIdClaim.Value;
 
             // check if the external user is already provisioned
-            var user = UsersStore.FindByProvider(provider, userId, connectId);
+            var user = await UsersStore.FindByProvider(provider, userId, connectId);
             if (user == null)
             {
                 // this sample simply auto-provisions new external user
                 // another common approach is to start a registrations workflow first
-                user = UsersStore.ProvisionUser(provider, userId, connectId, claims);
+                user = await UsersStore.ProvisionUser(provider, userId, connectId, claims);
             }
 
             var additionalClaims = new List<Claim>();

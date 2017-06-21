@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Labs.Security.Domain.Features.Profiles.Providers;
 using Labs.Security.Domain.Shared.Extensions;
 
 namespace Labs.Security.Domain.Features.Users
 {
-    public class UserStore
+    public class UserStore : IUserStore
     {
-        public UserStore(ICollection<UserData> users, IClaimMapper mapper, IIdentityProvider provider)
+        public UserStore(IClaimMapper mapper, IIdentityProvider provider)
         {
-            Cache = users;
+            //ICollection<UserData> users,
+            //Cache = users;
+
+            Cache = new List<UserData>();
             Mapper = mapper;
             Provider = provider;
         }
@@ -20,60 +24,60 @@ namespace Labs.Security.Domain.Features.Users
 
         protected IClaimMapper Mapper { get; set; }
 
-        public IIdentityProvider Provider { get; set; }
+        protected IIdentityProvider Provider { get; set; }
 
-        public bool ValidateCredentials(string username, string password)
+        public Task<bool> ValidateCredentials(string username, string password)
         {
             var query = from user in Cache
                         where user.Username != null && user.Password != null
-                            && user.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
-                            && user.Password.Equals(password)
+                              && user.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
+                              && user.Password.Equals(password)
                         select user;
 
-            return query.Any();
+            return Task.FromResult(query.Any());
         }
 
-        public UserData FindBySubjectId(string subjectId)
+        public Task<UserData> FindBySubjectId(string subjectId)
         {
             var query = from user in Cache
                         where user.SubjectId == subjectId
                         select user;
 
-            return query.FirstOrDefault();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
-        public UserData FindByUsername(string username)
+        public Task<UserData> FindByUsername(string username)
         {
             var query = from user in Cache
                         where user.Username.Equals(username, StringComparison.OrdinalIgnoreCase)
                         select user;
 
-            return query.FirstOrDefault();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
-        public UserData FindByProvider(string provider, string subjectId, string connectId)
+        public Task<UserData> FindByProvider(string provider, string subjectId, string connectId)
         {
             var query = from user in Cache
                         where user.ProviderName == provider
-                            && user.ProviderSubjectId == subjectId
-                            && user.ConnectId == connectId
+                              && user.ProviderSubjectId == subjectId
+                              && user.ConnectId == connectId
                         select user;
 
-            return query.FirstOrDefault();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
-        public UserData ProvisionUser(string provider, string userId, string connectId, List<Claim> claims)
+        public async Task<UserData> ProvisionUser(string provider, string userId, string connectId, List<Claim> claims)
         {
             // ToDo: consider using async await [DanD]
             var criterion = new AliasesCriterion
             {
-                Aliases = new []
+                Aliases = new[]
                 {
                     userId,
                     connectId,
                 }
             };
-            var profiles = Provider.Search(criterion).Result;
+            var profiles = await Provider.Search(criterion);
             if (profiles.Any())
             {
                 var userClaims = new List<Claim>();
