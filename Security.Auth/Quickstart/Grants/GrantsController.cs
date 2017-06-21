@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Labs.Security.Auth.Quickstart.Shared.Attributes;
+using Labs.Security.Auth.Shared.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

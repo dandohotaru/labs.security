@@ -10,7 +10,7 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using Labs.Security.Auth.Quickstart.Shared.Attributes;
+using Labs.Security.Auth.Shared.Attributes;
 using Labs.Security.Domain.Features.Users;
 using Labs.Security.Domain.Shared.Extensions;
 using Microsoft.AspNetCore.Authentication;

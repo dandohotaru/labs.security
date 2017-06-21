@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Labs.Security.Auth.Quickstart.Shared.Attributes
+namespace Labs.Security.Auth.Shared.Attributes
 {
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {

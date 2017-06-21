@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using IdentityServer4.Services;
-using Labs.Security.Auth.Quickstart.Shared.Attributes;
+using Labs.Security.Auth.Shared.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Labs.Security.Auth.Quickstart.Home

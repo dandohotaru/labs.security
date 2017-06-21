@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
+using Labs.Security.Auth.Data;
 using Labs.Security.Auth.Quickstart.Account;
 using Labs.Security.Auth.Quickstart.Shared.Mappers;
 using Labs.Security.Domain.Adfs.Profiles;
@@ -74,9 +75,9 @@ namespace Labs.Security.Auth
                     options.Events.RaiseErrorEvents = true;
                 })
                 .AddSigningCredential(certificate)
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryApiResources(Config.GetApiResources())
-                .AddInMemoryClients(Config.GetClients())
+                .AddInMemoryIdentityResources(new CarbonData().Load())
+                .AddInMemoryApiResources(new SiliconData().Load())
+                .AddInMemoryClients(new ClientsData().Load())
                 .AddProfileService<ProfileService>();
         }
 
