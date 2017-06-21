@@ -100,8 +100,8 @@ namespace Labs.Security.Auth
                 {
                     AuthenticationScheme = "Google",
                     SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme,
-                    ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com",
-                    ClientSecret = "wdfPY6t8H8cecgjlxud__4Gh"
+                    ClientId = "15987029996-5l1d4bmgo0b3qa3da7pt9gmr2jrs8los.apps.googleusercontent.com",
+                    ClientSecret = "19TvpEYaPMNSVHWi6GrktSPC"
                 });
 
                 inner.UseMvcWithDefaultRoute();

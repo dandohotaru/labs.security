@@ -133,8 +133,8 @@ namespace Labs.Security.Auth.Quickstart.Account
                     var nameWithoutDomain = principal.Identity.Alias();
 
                     var props = new AuthenticationProperties();
-                    props.Items.Add("scheme", context == null ? AccountOptions.WindowsAuthenticationProviderName : context.IdP);
-                    props.Items.Add("connectId", context == null ? nameWithoutDomain : context.LoginHint);
+                    props.Items.Add("scheme", context?.IdP ?? AccountOptions.WindowsAuthenticationProviderName);
+                    props.Items.Add("connectId", context?.LoginHint ?? nameWithoutDomain);
 
                     var claims = new ClaimsIdentity(provider);
                     claims.AddClaim(new Claim(JwtClaimTypes.Subject, nameWithoutDomain));
@@ -232,11 +232,11 @@ namespace Labs.Security.Auth.Quickstart.Account
 
             // if the external provider issued an id_token, we'll keep it for signout
             AuthenticationProperties props = null;
-            var id_token = info.Properties.GetTokenValue("id_token");
-            if (id_token != null)
+            var idToken = info.Properties.GetTokenValue("id_token");
+            if (idToken != null)
             {
                 props = new AuthenticationProperties();
-                props.StoreTokens(new[] {new AuthenticationToken {Name = "id_token", Value = id_token}});
+                props.StoreTokens(new[] {new AuthenticationToken {Name = "id_token", Value = idToken}});
             }
 
             // issue authentication cookie for user

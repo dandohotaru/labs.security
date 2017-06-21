@@ -55,8 +55,8 @@ namespace Labs.Security.Domain.Features.Users
         public Task<UserData> FindByProvider(string provider, string subjectId, string connectId)
         {
             var query = from user in Cache
-                        where user.ProviderName == provider
-                              && user.ProviderSubjectId == subjectId
+                        where user.Provider == provider
+                              && user.ExternalId == subjectId
                               && user.ConnectId == connectId
                         select user;
 
@@ -103,15 +103,29 @@ namespace Labs.Security.Domain.Features.Users
                     userClaims.Add("fullName", principal.FullName);
                 }
 
-                var user = new UserData
+                var query = from entry in Cache
+                            where entry.Provider == provider
+                                  && entry.ExternalId == userId
+                            select entry;
+
+                var user = query.FirstOrDefault();
+                if (user == null)
                 {
-                    SubjectId = userId,
-                    ConnectId = connectId,
-                    Username = userId,
-                    ProviderName = provider,
-                    ProviderSubjectId = userId,
-                    Claims = userClaims
-                };
+                    user = new UserData
+                    {
+                        SubjectId = userId,
+                        ConnectId = connectId,
+                        Username = userId,
+                        Provider = provider,
+                        ExternalId = userId,
+                        Claims = userClaims,
+                    };
+                }
+                else
+                {
+                    user.ConnectId = connectId;
+                    user.Claims = userClaims;
+                }
 
                 Cache.Add(user);
                 return user;
@@ -154,8 +168,8 @@ namespace Labs.Security.Domain.Features.Users
                 {
                     SubjectId = userId,
                     Username = str,
-                    ProviderName = provider,
-                    ProviderSubjectId = userId,
+                    Provider = provider,
+                    ExternalId = userId,
                     Claims = source1
                 };
 
