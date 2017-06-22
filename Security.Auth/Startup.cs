@@ -65,6 +65,11 @@ namespace Labs.Security.Auth
                 return new LocalStore(mapper, provider);
             });
 
+            services.Configure<IISOptions>(options =>
+            {
+                options.ForwardWindowsAuthentication = true;
+            });
+
             // Add idsrv
             services
                 .AddIdentityServer(options =>
