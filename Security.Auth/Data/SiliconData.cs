@@ -13,7 +13,20 @@ namespace Labs.Security.Auth.Data
 
         private static ApiResource CompanionApi()
         {
-            return new ApiResource("permissions", "Permissions");
+            return new ApiResource("permissions", "Permissions")
+            {
+                UserClaims = new List<string>
+                {
+                    "userId",
+                    "userName",
+                    "userLabel",
+                    "personId",
+                    "firstName",
+                    "lastName",
+                    "fullName",
+                    "aliasName",
+                }
+            };
         }
 
         private static ApiResource SandboxApi()
