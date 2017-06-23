@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
-using Labs.Security.Domain.Features.Users;
 
-namespace Labs.Security.Auth.Quickstart.Shared.Mappers
+namespace Labs.Security.Auth.Shared.Mappers
 {
     public class JwtClaimMapper : IClaimMapper
     {

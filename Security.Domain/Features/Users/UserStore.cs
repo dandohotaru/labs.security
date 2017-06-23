@@ -10,16 +10,13 @@ namespace Labs.Security.Domain.Features.Users
 {
     public class UserStore : IUserStore
     {
-        public UserStore(IClaimMapper mapper, IIdentityProvider provider)
+        public UserStore(IIdentityProvider provider)
         {
             Cache = new List<UserData>();
-            Mapper = mapper;
             Provider = provider;
         }
 
         protected ICollection<UserData> Cache { get; set; }
-
-        protected IClaimMapper Mapper { get; set; }
 
         protected IIdentityProvider Provider { get; set; }
 
@@ -132,45 +129,19 @@ namespace Labs.Security.Domain.Features.Users
             }
             else
             {
-                // ToDo: Refactor claims sources logic [DanD]
-                var source1 = new List<Claim>();
-                foreach (var claim in claims)
-                {
-                    if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")
-                        source1.Add(new Claim("name", claim.Value));
-                    else if (Mapper.Contains(claim.Type))
-                        source1.Add(new Claim(Mapper.Fetch(claim.Type), claim.Value));
-                    else
-                        source1.Add(claim);
-                }
-
-                var source2 = source1;
-                Func<Claim, bool> predicate = x => x.Type == "name";
-                if (!source2.Any(predicate))
-                {
-                    var claim1 = source1.FirstOrDefault(x => x.Type == "given_name");
-                    var str1 = claim1 != null ? claim1.Value : null;
-                    var claim2 = source1.FirstOrDefault(x => x.Type == "family_name");
-                    var str2 = claim2 != null ? claim2.Value : null;
-                    if (str1 != null && str2 != null)
-                        source1.Add(new Claim("name", str1 + " " + str2));
-                    else if (str1 != null)
-                        source1.Add(new Claim("name", str1));
-                    else if (str2 != null)
-                        source1.Add(new Claim("name", str2));
-                }
-
-                var uniqueId = Guid.NewGuid().ToString();
-                var claim3 = source1.FirstOrDefault(c => c.Type == "name");
-                var str = (claim3 != null ? claim3.Value : null) ?? uniqueId;
+                var nameSchema = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
+                var nameClaim = claims.Find(p => p.Type == "name" || p.Type == nameSchema);
+                var name = nameClaim == null
+                    ? userId
+                    : nameClaim.Value;
 
                 var user = new UserData
                 {
                     SubjectId = userId,
-                    Username = str,
+                    Username = name,
                     Provider = provider,
                     ExternalId = userId,
-                    Claims = source1
+                    Claims = claims,
                 };
 
                 Cache.Add(user);

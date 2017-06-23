@@ -6,8 +6,7 @@ namespace Labs.Security.Domain.Features.Users
 {
     public class LocalStore : UserStore
     {
-        public LocalStore(IClaimMapper mapper, IIdentityProvider provider)
-            : base(mapper, provider)
+        public LocalStore(IIdentityProvider provider) : base(provider)
         {
             Cache = new List<UserData>
             {

@@ -4,7 +4,6 @@ using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
 using Labs.Security.Auth.Data;
 using Labs.Security.Auth.Quickstart.Account;
-using Labs.Security.Auth.Quickstart.Shared.Mappers;
 using Labs.Security.Domain.Adfs.Profiles;
 using Labs.Security.Domain.Features.Profiles.Providers;
 using Labs.Security.Domain.Features.Users;
@@ -67,12 +66,10 @@ namespace Labs.Security.Auth
 
             // Add extras
             services.AddTransient<IIdentityProvider, DirectoryIdentityProvider>();
-            services.AddTransient<IClaimMapper, JwtClaimMapper>();
             services.AddSingleton<IUserStore, UserStore>(context =>
             {
-                var mapper = context.GetService<IClaimMapper>();
                 var provider = context.GetService<IIdentityProvider>();
-                return new LocalStore(mapper, provider);
+                return new LocalStore(provider);
             });
 
             services.Configure<IISOptions>(options =>

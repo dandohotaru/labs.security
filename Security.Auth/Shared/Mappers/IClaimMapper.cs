@@ -1,4 +1,4 @@
-namespace Labs.Security.Domain.Features.Users
+namespace Labs.Security.Auth.Shared.Mappers
 {
     public interface IClaimMapper
     {
