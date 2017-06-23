@@ -42,3 +42,11 @@
 ### Web publishing updates for app offline and usechecksum
 `https://blogs.msdn.microsoft.com/webdev/2013/10/29/web-publishing-updates-for-app-offline-and-usechecksum/`
 
+
+
+# Setup Troubleshooting
+
+### Invalid scope when API resource constructor is not parameterized
+`https://github.com/IdentityServer/IdentityServer4/issues/980`
+
+

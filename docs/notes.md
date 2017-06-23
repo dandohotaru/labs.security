@@ -1,5 +1,5 @@
 
-# Configure with MongoDb
+# Configure MongoDb
 
 ### MongoDb Quickstarter
 `https://github.com/IdentityServer/IdentityServer4.Samples/issues/161`
@@ -10,7 +10,7 @@
 
 
 
-# Configure with WsFederation
+# Configure WsFederation
 
 ### Sample for implementing WS-Federation IdP support for IdentityServer4
 https://github.com/IdentityServer/IdentityServer4.WsFederation
@@ -20,7 +20,7 @@ https://github.com/IdentityServer/IdentityServer4.WsFederation
 
 
 
-# Configure with Adfs
+# Configure Adfs
 
 ### ADFS3 OAuth with IS4 
 `https://github.com/IdentityServer/IdentityServer4/issues/395`
@@ -39,3 +39,26 @@ https://github.com/IdentityServer/IdentityServer4.WsFederation
 
 ### Adding OAuth2 to ADFS (and thus bridging the gap between modern Applications and Enterprise Back ends)
 `https://leastprivilege.com/2013/09/19/adding-oauth2-to-adfs-and-thus-bridging-the-gap-between-modern-applications-and-enterprise-back-ends/`
+
+
+
+# Configure Swagger
+
+### Swagger and ASP.NET Web API - Part I: Adding Swagger to Web API project
+http://wmpratt.com/swagger-and-asp-net-web-api-part-1/
+
+### Swagger and ASP.NET Web API - Part II: Enabling OAuth 2.0
+`http://wmpratt.com/part-ii-swagger-and-asp-net-web-api-enabling-oauth2/`
+
+### SECURING A SWAGGER API WITH IDENTITYSERVER4 – PART 1
+`http://dave.vanherten.ca/2017/02/swagger-identityserver4-part1/`
+
+### SECURING A SWAGGER API WITH IDENTITYSERVER4 – PART 2
+`http://dave.vanherten.ca/2017/03/swagger-identityserver4-part2/`
+
+### CONFIGURING SWAGGER TO HANDLE MEDIATR COMMANDS AND QUERIES
+`http://dave.vanherten.ca/2017/03/configuring-swagger-to-handle-mediatr-commands-and-queries/`
+
+### Identity Server 4 Swagger Authentication
+`https://stackoverflow.com/questions/39819997/identity-server-4-swagger-authentication`
+
