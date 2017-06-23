@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4;
 using Labs.Security.Auth.Data;
@@ -48,9 +49,18 @@ namespace Labs.Security.Auth
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // ToDo: Consider serving certificate from a Trusted Store [DanD]
-            var certificatePath = Path.Combine(Environment.ContentRootPath, "Certificates", "IdentityServerAuth.pfx");
-            var certificate = new X509Certificate2(certificatePath);
+            var certificate = new Func<string, X509Certificate2>(name =>
+            {
+                using (var store = new X509Store(StoreLocation.LocalMachine))
+                {
+                    store.Open(OpenFlags.ReadOnly);
+                    var found = store.Certificates.Find(X509FindType.FindBySubjectName, name, validOnly: false);
+                    store.Close();
+                    return found.Count > 0
+                        ? found[index: 0]
+                        : null;
+                }
+            });
 
             // Add mvc
             services.AddMvc();
@@ -79,7 +89,7 @@ namespace Labs.Security.Auth
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseErrorEvents = true;
                 })
-                .AddSigningCredential(certificate)
+                .AddSigningCredential(certificate("sec.auth"))
                 .AddInMemoryIdentityResources(new CarbonData().Load())
                 .AddInMemoryApiResources(new SiliconData().Load())
                 .AddInMemoryClients(new ClientsData().Load())

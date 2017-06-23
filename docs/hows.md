@@ -8,44 +8,11 @@
 
 
 
-# Certificates Setup ([hint](https://stackoverflow.com/questions/42351274/identityserver4-hosting-in-iis))
-
-### Create the certificate in the project
-```
-"C:\Program Files (x86)\Windows Kits\8.1\bin\x64\makecert" -n "CN=IdentityServerAuth" -a sha256 -sv IdentityServerAuth.pvk -r IdentityServerAuth.cer -b 01/01/2017 -e 01/01/2025
-```
-
-```
-"C:\Program Files (x86)\Windows Kits\8.1\bin\x64\pvk2pfx" -pvk IdentityServerAuth.pvk -spc IdentityServerAuth.cer -pfx IdentityServerAuth.pfx
-```
-
-### Make sure "AddSigningCredential" is being used
-```
-services
-	.AddIdentityServer()
-    .AddSigningCredential(new X509Certificate2(Path.Combine(Environment.ContentRootPath, "certificates", "IdentityServerAuth.pfx")))
-	...
-```
-
-### Test with iis express
-
-### If successful, deploy to iis server, install the certificate on the server by double clicking on it, and test
-
-### Make sure the application pool "load user profile" is set to true
-
-- Go to IIS Manager
-- Go to the application pool instance
-- Click advanced settings
-- Under Process model, set Load User Profile to true
-
-### Restart IIS
-
-
-
 # Deployment Strategies
 
 ### Create publish profiles for Visual Studio and MSBuild, to deploy ASP.NET Core apps
 `https://docs.microsoft.com/en-us/aspnet/core/publishing/web-publishing-vs`
+
 
 
 # Deployment Configuration
@@ -61,6 +28,7 @@ services
 
 ### Make sure feature delegation is enabled for authentication
 `https://serverfault.com/questions/529819/changes-done-in-iis-manager-are-reflected-in-web-config-intead-of-applicationhos`
+
 
 
 # Deployment Troubleshooting
