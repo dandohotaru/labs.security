@@ -7,12 +7,12 @@ namespace Labs.Security.Auth.Data
     {
         public IEnumerable<Client> Load()
         {
-            yield return DemoGrant();
-            yield return DemoMvc();
-            yield return DemoSpa();
+            yield return GrantDemo();
+            yield return MvcApp();
+            yield return WebApp();
         }
 
-        protected Client DemoGrant()
+        protected Client GrantDemo()
         {
             // client credentials flow client
             return new Client
@@ -31,7 +31,7 @@ namespace Labs.Security.Auth.Data
             };
         }
 
-        protected Client DemoMvc()
+        protected Client MvcApp()
         {
             // MVC client using hybrid flow
             return new Client
@@ -62,7 +62,7 @@ namespace Labs.Security.Auth.Data
             };
         }
 
-        protected Client DemoSpa()
+        protected Client WebApp()
         {
             // SPA client using implicit flow
             return new Client

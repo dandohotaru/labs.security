@@ -11,26 +11,25 @@ namespace Labs.Security.Auth.Data
             yield return Email();
             yield return Phone();
             yield return Profile();
-            yield return Permissions();
             yield return Roles();
         }
 
-        protected IdentityResource Openid()
+        private static IdentityResource Openid()
         {
             return new IdentityResources.OpenId();
         }
 
-        protected IdentityResource Email()
+        private static IdentityResource Email()
         {
             return new IdentityResources.Email();
         }
 
-        protected IdentityResource Phone()
+        private static IdentityResource Phone()
         {
             return new IdentityResources.Phone();
         }
 
-        protected IdentityResource Profile()
+        private static IdentityResource Profile()
         {
             return new IdentityResource
             {
@@ -52,37 +51,11 @@ namespace Labs.Security.Auth.Data
                     "email",
                     "role",
                     "grant",
-                }
+                },
             };
         }
 
-        protected IdentityResource Permissions()
-        {
-            return new IdentityResource
-            {
-                Name = "permissions",
-                DisplayName = "Permissions",
-                Description = "Encapsulates information about the permissions claims",
-                Enabled = true,
-                Emphasize = true,
-                UserClaims = new List<string>
-                {
-                    "userId",
-                    "userName",
-                    "userLabel",
-                    "personId",
-                    "firstName",
-                    "lastName",
-                    "fullName",
-                    "aliasName",
-                    "email",
-                    "role",
-                    "grant",
-                }
-            };
-        }
-
-        protected IdentityResource Roles()
+        private static IdentityResource Roles()
         {
             return new IdentityResource
             {

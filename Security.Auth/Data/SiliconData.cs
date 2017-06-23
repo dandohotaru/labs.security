@@ -7,49 +7,54 @@ namespace Labs.Security.Auth.Data
     {
         public IEnumerable<ApiResource> Load()
         {
-            yield return Apione();
-            yield return Apitwo();
-            yield return Apithree();
-            yield return Apifour();
+            yield return CompanionApi();
+            yield return SandboxApi();
         }
 
-        protected ApiResource Apione()
+        private static ApiResource CompanionApi()
         {
-            return new ApiResource("api1", "Api #1");
+            return new ApiResource("permissions", "Permissions");
         }
 
-        protected ApiResource Apitwo()
-        {
-            return new ApiResource("api2", "Api #2");
-        }
-
-        protected ApiResource Apithree()
+        private static ApiResource SandboxApi()
         {
             return new ApiResource
             {
-                Name = "api3",
-                DisplayName = "Api #3",
-                Description = "Api #3",
+                Name = "sandbox",
+                DisplayName = "Sandbox (resource scope)",
+                Description = "Encapsulates permissions for the sandbox api",
                 Enabled = true,
                 UserClaims = new List<string>
                 {
-                    "role",
-                }
-            };
-        }
-
-        protected ApiResource Apifour()
-        {
-            return new ApiResource
-            {
-                Name = "api4",
-                DisplayName = "Api #4",
-                Description = "Api #4",
-                Enabled = true,
-                UserClaims = new List<string>
+                    "userId",
+                    "userName",
+                    "userLabel",
+                    "personId",
+                    "firstName",
+                    "lastName",
+                    "fullName",
+                    "aliasName",
+                },
+                Scopes = new List<Scope>
                 {
-                    "role",
-                    "grant",
+                    new Scope
+                    {
+                        Name = "sandbox.full",
+                        DisplayName = "Sandbox Permissions",
+                        Description = "Grants full permissions for the sandbox api",
+                    },
+                    new Scope
+                    {
+                        Name = "sandbox.read",
+                        DisplayName = "Sandbox Read",
+                        Description = "Grants read permissions for the sandbox api",
+                    },
+                    new Scope
+                    {
+                        Name = "sandbox.write",
+                        DisplayName = "Sandbox Write",
+                        Description = "Grants write permissions for the sandbox api",
+                    },
                 }
             };
         }
