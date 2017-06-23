@@ -22,7 +22,7 @@
     <PackageReference Include="Serilog.Sinks.Seq" Version="3.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Security.Domain.Exchange\Security.Domain.Adfs.csproj" />
+    <ProjectReference Include="..\Security.Domain.Adfs\Security.Domain.Adfs.csproj" />
     <ProjectReference Include="..\Security.Domain\Security.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
