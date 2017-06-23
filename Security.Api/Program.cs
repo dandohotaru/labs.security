@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Security.Api
+namespace Labs.Security.Api
 {
     public class Program
     {

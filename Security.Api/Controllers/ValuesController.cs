@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Security.Api.Controllers
+namespace Labs.Security.Api.Controllers
 {
     [Route("[controller]")]
     public class ValuesController : Controller
